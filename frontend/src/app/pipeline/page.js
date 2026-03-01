@@ -52,7 +52,20 @@ export default function PipelinePage() {
                     padding: '10px 22px', background: '#1e293b', color: '#fff',
                     borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none',
                     transition: 'all 0.2s', flexShrink: 0,
-                }}>
+                }}
+                    onMouseEnter={e => {
+                        e.currentTarget.style.background = '#1f2937';
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(17, 24, 39, 0.15)';
+                    }}
+                    onMouseLeave={e => {
+                        e.currentTarget.style.background = '#1e293b';
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                    }}
+                >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                     Add New Hire
                 </Link>

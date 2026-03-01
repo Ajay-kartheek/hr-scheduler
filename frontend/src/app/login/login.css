@@ -710,7 +710,7 @@
     font-weight: 800;
     color: #00275E;
     text-shadow: 0 0 20px rgba(0, 173, 239, 0.5), 0 0 40px rgba(0, 173, 239, 0.2);
-    animation: letterFall 2s ease-in forwards;
+    animation: letterFall 1.6s ease-in forwards;
 }
 
 @keyframes letterFall {
@@ -720,20 +720,24 @@
         text-shadow: 0 0 20px rgba(0, 173, 239, 0.5), 0 0 40px rgba(0, 173, 239, 0.2);
     }
 
-    15% {
-        transform: translateY(-20px) rotate(-3deg) scale(2.8);
+    12% {
+        transform: translateY(-30px) rotate(-3deg) scale(4);
         opacity: 1;
-        text-shadow: 0 0 30px rgba(0, 173, 239, 0.8), 0 0 60px rgba(0, 173, 239, 0.4);
+        text-shadow: 0 0 40px rgba(0, 173, 239, 0.9), 0 0 80px rgba(0, 173, 239, 0.5), 0 0 120px rgba(0, 173, 239, 0.3);
     }
 
-    30% {
-        transform: translateY(-5px) rotate(0deg) scale(2.8);
+    25% {
+        transform: translateY(-10px) rotate(0deg) scale(4);
         opacity: 1;
-        text-shadow: 0 0 25px rgba(0, 173, 239, 0.6), 0 0 50px rgba(0, 173, 239, 0.3);
+        text-shadow: 0 0 35px rgba(0, 173, 239, 0.7), 0 0 70px rgba(0, 173, 239, 0.4);
+    }
+
+    60% {
+        opacity: 0.7;
     }
 
     100% {
-        transform: translateY(calc(60vh + 100px)) rotate(20deg) scale(1.5);
+        transform: translateY(100vh) rotate(25deg) scale(2);
         opacity: 0;
         text-shadow: 0 0 0 transparent;
     }
@@ -748,16 +752,80 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: welcomeFadeIn 0.5s ease;
+    animation: welcomeFadeIn 0.8s ease;
 }
 
 @keyframes welcomeFadeIn {
     0% {
         opacity: 0;
+        transform: scale(1.02);
     }
 
     100% {
         opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ═══ WELCOME EXIT — Circular rotation transition ═══ */
+.welcome-exit {
+    animation: welcomeRotateOut 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    transform-origin: bottom right;
+}
+
+.welcome-exit .welcome-content {
+    animation: contentFadeUp 0.4s ease forwards;
+}
+
+.welcome-exit .welcome-top-logo {
+    animation: logoFadeOut 0.3s ease forwards;
+}
+
+@keyframes welcomeRotateOut {
+    0% {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+        border-radius: 0;
+    }
+
+    40% {
+        transform: rotate(15deg) scale(0.92);
+        opacity: 0.9;
+        border-radius: 20px;
+    }
+
+    70% {
+        transform: rotate(45deg) scale(0.75);
+        opacity: 0.5;
+        border-radius: 40px;
+    }
+
+    100% {
+        transform: rotate(90deg) scale(0.4);
+        opacity: 0;
+        border-radius: 50%;
+    }
+}
+
+@keyframes contentFadeUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+
+@keyframes logoFadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
     }
 }
 

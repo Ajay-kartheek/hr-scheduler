@@ -11,6 +11,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loginState, setLoginState] = useState('idle');
     const [showOnboardBtn, setShowOnboardBtn] = useState(false);
+    const [transitioning, setTransitioning] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -82,8 +83,8 @@ export default function LoginPage() {
                 setLoginState('falling');
                 setTimeout(() => {
                     setLoginState('welcome');
-                    setTimeout(() => setShowOnboardBtn(true), 4200);
-                }, 3000);
+                    setTimeout(() => setShowOnboardBtn(true), 2200);
+                }, 2000);
             } else {
                 setLoginState('error');
                 setErrorMsg('Invalid email or password. Please try again.');
@@ -92,7 +93,10 @@ export default function LoginPage() {
     };
 
     const handleStartDashboard = () => {
-        router.push('/');
+        setTransitioning(true);
+        setTimeout(() => {
+            router.push('/');
+        }, 900);
     };
 
     return (
@@ -145,8 +149,8 @@ export default function LoginPage() {
             </div>
 
             {/* ═══ WELCOME PAGE ═══ */}
-            {loginState === 'welcome' && (
-                <div className="welcome-screen">
+            {(loginState === 'welcome') && (
+                <div className={`welcome-screen ${transitioning ? 'welcome-exit' : ''}`}>
                     <div className="welcome-top-logo">
                         <img src="/sk-logo.svg" alt="Shellkode" />
                     </div>

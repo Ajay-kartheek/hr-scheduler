@@ -135,7 +135,7 @@ a:hover {
   flex: 1;
   margin-left: var(--sidebar-width);
   width: calc(100% - var(--sidebar-width));
-  min-height: 100vh;
+  height: 100vh;
   max-width: calc(100vw - var(--sidebar-width));
   overflow-x: hidden;
   overflow-y: auto;

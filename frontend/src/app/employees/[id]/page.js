@@ -86,7 +86,7 @@ export default function EmployeeDetailPage() {
     ];
 
     return (
-        <div style={{ padding: '28px 32px', width: '100%', boxSizing: 'border-box', animation: 'fadeIn 0.35s ease', overflowX: 'hidden' }}>
+        <div style={{ padding: '20px 32px', width: '100%', boxSizing: 'border-box', animation: 'fadeIn 0.35s ease', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {/* Back link */}
             <Link href="/pipeline" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -144,14 +144,24 @@ export default function EmployeeDetailPage() {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr', gap: 20, flex: 1, overflow: 'hidden', minHeight: 0 }}>
                 {/* Left: Info Card */}
-                <div>
+                <div style={{ overflow: 'auto', maxHeight: '100%' }}>
+                    {/* Invisible spacer to align left box with right boxes */}
+                    <div style={{
+                        display: 'flex', marginBottom: 16,
+                        borderBottom: '1px solid transparent', pointerEvents: 'none',
+                    }}>
+                        <div style={{
+                            padding: '10px 20px', fontSize: 13, fontWeight: 600, border: 'none',
+                            borderBottom: '2px solid transparent', marginBottom: -1, opacity: 0
+                        }}>&nbsp;</div>
+                    </div>
                     <div style={{
                         background: '#fff', borderRadius: 14, border: '1px solid #f0f0f0',
                         padding: 20,
                     }}>
-                        <h3 style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 14 }}>
+                        <h3 style={{ fontSize: 12, fontWeight: 'bold', color: 'black', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 14 }}>
                             Details
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -177,7 +187,7 @@ export default function EmployeeDetailPage() {
                 </div>
 
                 {/* Right: Tabs */}
-                <div>
+                <div style={{ overflow: 'auto', maxHeight: '100%', paddingRight: 4 }}>
                     {/* Tab Header */}
                     <div style={{
                         display: 'flex', gap: 0, marginBottom: 16,
