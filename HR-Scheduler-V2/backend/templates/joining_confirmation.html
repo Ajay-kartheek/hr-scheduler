@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Aboard — Shellkode Technologies</title>
+</head>
+
+<body style="margin:0;padding:0;background:#f0f4ff;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4ff;padding:32px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0"
+                    style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,39,94,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td
+                            style="background:linear-gradient(135deg,#00275E,#003580);padding:36px 40px;text-align:center;">
+                            <h1 style="color:#fff;font-size:24px;margin:0 0 6px;">🎉 Welcome Aboard!</h1>
+                            <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0;">You're officially part of
+                                the Shellkode family</p>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding:36px 40px;">
+                            <p style="font-size:15px;color:#1e293b;margin:0 0 20px;">
+                                Dear <strong>{{ full_name }}</strong>,
+                            </p>
+                            <p style="font-size:14px;color:#475569;line-height:1.7;margin:0 0 24px;">
+                                We're thrilled to confirm that your onboarding is complete and you are now officially an
+                                active member of
+                                <strong>Shellkode Technologies</strong>! Below are your credentials and access details.
+                            </p>
+
+                            <!-- Credentials Cards -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                                <!-- Company Email -->
+                                <tr>
+                                    <td style="padding:6px 0;">
+                                        <table width="100%" cellspacing="0" cellpadding="0"
+                                            style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;">
+                                            <tr>
+                                                <td style="padding:16px 20px;">
+                                                    <div
+                                                        style="font-size:10px;font-weight:600;color:#0369a1;letter-spacing:1px;margin-bottom:6px;">
+                                                        COMPANY EMAIL</div>
+                                                    <div style="font-size:18px;font-weight:700;color:#0c4a6e;">{{
+                                                        company_email }}</div>
+                                                    <div style="font-size:11px;color:#64748b;margin-top:4px;">Use this
+                                                        email for all official communications</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- Employee ID -->
+                                <tr>
+                                    <td style="padding:6px 0;">
+                                        <table width="100%" cellspacing="0" cellpadding="0"
+                                            style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;">
+                                            <tr>
+                                                <td style="padding:16px 20px;">
+                                                    <div
+                                                        style="font-size:10px;font-weight:600;color:#15803d;letter-spacing:1px;margin-bottom:6px;">
+                                                        EMPLOYEE ID</div>
+                                                    <div style="font-size:18px;font-weight:700;color:#14532d;">{{
+                                                        employee_id }}</div>
+                                                    <div style="font-size:11px;color:#64748b;margin-top:4px;">Your
+                                                        unique identification within the organization</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- Designation -->
+                                <tr>
+                                    <td style="padding:6px 0;">
+                                        <table width="100%" cellspacing="0" cellpadding="0"
+                                            style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;">
+                                            <tr>
+                                                <td style="padding:16px 20px;">
+                                                    <div
+                                                        style="font-size:10px;font-weight:600;color:#7c3aed;letter-spacing:1px;margin-bottom:6px;">
+                                                        DESIGNATION</div>
+                                                    <div style="font-size:18px;font-weight:700;color:#4c1d95;">{{
+                                                        designation }}</div>
+                                                    {% if department %}
+                                                    <div style="font-size:11px;color:#64748b;margin-top:4px;">{{
+                                                        department }} Department</div>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Access & Next Steps -->
+                            <h2
+                                style="font-size:15px;color:#1e293b;margin:28px 0 14px;padding-bottom:8px;border-bottom:1px solid #e8ecf4;">
+                                🔑 Access & Provisioning
+                            </h2>
+                            <table width="100%" cellspacing="0" cellpadding="0"
+                                style="font-size:13px;color:#475569;line-height:1.8;">
+                                <tr>
+                                    <td style="padding:4px 0;">✅ Company email account has been created</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:4px 0;">✅ Employee ID card is being prepared</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:4px 0;">✅ Building access card will be ready at reception</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:4px 0;">✅ IT equipment has been provisioned as per your role</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:4px 0;">✅ Slack and internal tools access will be configured</td>
+                                </tr>
+                            </table>
+
+                            <h2
+                                style="font-size:15px;color:#1e293b;margin:28px 0 14px;padding-bottom:8px;border-bottom:1px solid #e8ecf4;">
+                                📋 What's Next
+                            </h2>
+                            <p style="font-size:13px;color:#475569;line-height:1.7;margin:0 0 8px;">
+                                • Report to the <strong>front desk</strong> on your first day to collect your badge and
+                                welcome kit<br>
+                                • Check your new company email for calendar invites and orientation schedule<br>
+                                • Your manager will reach out to schedule an introductory meeting<br>
+                                • Complete any pending compliance trainings assigned to your account
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td
+                            style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e8ecf4;">
+                            <p style="font-size:12px;color:#94a3b8;margin:0 0 4px;">
+                                Questions? Reach out to HR at <a href="mailto:{{ sender_email }}"
+                                    style="color:#00ADEF;text-decoration:none;">{{ sender_email }}</a>
+                            </p>
+                            <p style="font-size:11px;color:#cbd5e1;margin:0;">
+                                Shellkode Technologies — People & Culture Team
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

@@ -390,13 +390,81 @@ def accept_offer(employee_id: str, db: Session = Depends(get_db)):
             if step and step.status in (StepStatus.PENDING, StepStatus.IN_PROGRESS):
                 engine.complete_step(step.id, result, note)
 
-    # 5. Send welcome/offer email
-    from services.email_service import send_offer_email
+    # 5. Send offer-accepted confirmation email (NOT the offer letter again!)
+    from services.email_service import send_email, FRONTEND_URL
     try:
-        send_offer_email(emp, db=db)
-        logger.info(f"Offer email sent to {emp.personal_email}")
+        first_name = emp.first_name or "there"
+        full_name = f"{first_name} {emp.last_name or ''}".strip()
+        doj_str = emp.doj.strftime("%B %d, %Y") if emp.doj else "To be confirmed"
+        form_url = f"{FRONTEND_URL}/welcome/{emp.form_token}" if emp.form_token else ""
+
+        subject = f"Offer Accepted — Welcome Aboard, {first_name}! 🎉"
+        body_html = f"""
+        <div style="font-family: 'Inter', Arial, sans-serif; max-width: 640px; margin: 0 auto; background: #f0f4ff;">
+            <div style="background: linear-gradient(135deg, #065f46, #059669); padding: 36px 32px; border-radius: 12px 12px 0 0; text-align: center;">
+                <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+                <h1 style="margin: 0; font-size: 22px; color: #fff; font-weight: 700;">Offer Accepted!</h1>
+                <p style="margin: 8px 0 0; color: rgba(255,255,255,0.8); font-size: 14px;">Welcome to Shellkode Technologies</p>
+            </div>
+
+            <div style="background: #fff; padding: 32px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+                <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{full_name}</strong>,</p>
+
+                <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                    Congratulations! Your acceptance has been recorded and we're excited to have you join us as
+                    <strong style="color: #00275E;">{emp.designation}</strong>.
+                    Your pre-boarding process has been initiated.
+                </p>
+
+                <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #10b981; border-radius: 8px; padding: 20px 24px; margin: 24px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748b; width: 160px;">Date of Joining</td>
+                            <td style="padding: 6px 0; color: #065f46; font-weight: 700; font-size: 15px;">{doj_str}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748b;">Company Email</td>
+                            <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{emp.company_email or 'Being set up'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; color: #64748b;">Role ID</td>
+                            <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{role_id or 'Generating...'}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p style="font-size: 14px; color: #334155; line-height: 1.7; font-weight: 600;">
+                    Next Steps:
+                </p>
+                <ol style="font-size: 14px; color: #334155; line-height: 2; padding-left: 20px;">
+                    <li>Complete your onboarding form with personal details & documents</li>
+                    <li>You'll receive your welcome kit and team introduction</li>
+                    <li>Calendar invite for Day 1 will be sent closer to your joining date</li>
+                </ol>
+
+                {'<div style="text-align: center; margin: 28px 0;"><a href="' + form_url + '" style="display: inline-block; background: linear-gradient(135deg, #00275E, #003580); color: white; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,39,94,0.2);">Complete Your Onboarding Form</a></div>' if form_url else ''}
+
+                <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        Best regards,<br>
+                        <strong style="color: #1e293b;">HR Team</strong><br>
+                        Shellkode Technologies Pvt. Ltd.
+                    </p>
+                </div>
+            </div>
+        </div>
+        """
+
+        send_email(
+            to_email=emp.personal_email,
+            subject=subject,
+            body_html=body_html,
+            employee_id=emp.id,
+            db=db,
+        )
+        logger.info(f"Acceptance confirmation sent to {emp.personal_email}")
     except Exception as e:
-        logger.error(f"Failed to send offer email: {e}")
+        logger.error(f"Failed to send acceptance email: {e}")
 
     # Calendar events are created later during form submission (when DOJ is confirmed)
 

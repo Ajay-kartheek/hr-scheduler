@@ -396,11 +396,20 @@ def _auto_trigger(emp, classification, db):
 
 
 def is_authenticated():
-    """Check if Gmail OAuth2 token exists and is valid."""
+    """Check if Gmail OAuth2 token exists and is valid. Auto-refreshes expired tokens."""
     if not os.path.exists(TOKEN_FILE):
         return False
     try:
         creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-        return creds and creds.valid
-    except Exception:
+        if creds and creds.valid:
+            return True
+        # Try to refresh expired token
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            with open(TOKEN_FILE, "w") as f:
+                f.write(creds.to_json())
+            return creds.valid
+        return False
+    except Exception as e:
+        logging.getLogger("hr_scheduler").error(f"Gmail auth check failed: {e}")
         return False

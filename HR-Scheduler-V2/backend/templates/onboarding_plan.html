@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body style="margin: 0; padding: 0; background: #f0f4ff; font-family: 'Inter', Arial, sans-serif;">
+    <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
+
+        <!-- Header -->
+        <div
+            style="background: linear-gradient(135deg, #065f46, #059669); padding: 36px 32px; border-radius: 12px 12px 0 0; text-align: center;">
+            <div style="font-size: 36px; margin-bottom: 8px;">📋</div>
+            <h1 style="margin: 0; font-size: 22px; color: #ffffff; font-weight: 700;">Your Onboarding Plan</h1>
+            <p style="margin: 8px 0 0; color: rgba(255,255,255,0.8); font-size: 14px;">Shellkode Technologies</p>
+        </div>
+
+        <!-- Body -->
+        <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none;">
+            <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{{ full_name }}</strong>,</p>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                We've prepared your personalized onboarding plan as a <strong>{{ designation }}</strong>.
+                Your expected date of joining is <strong>{{ doj }}</strong>.
+            </p>
+
+            <!-- Plan Content -->
+            <div
+                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin: 24px 0;">
+                {% for line in plan_text.split('\n') %}
+                {% if line.strip().startswith('WEEK') or line.strip().startswith('DAYS') %}
+                <h3
+                    style="font-size: 14px; font-weight: 700; color: #00275E; margin: 20px 0 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                    {{ line.strip() }}</h3>
+                {% elif line.strip().startswith('-') or line.strip().startswith('•') %}
+                <p style="font-size: 13px; color: #334155; line-height: 1.6; margin: 4px 0 4px 16px;">{{ line.strip() }}
+                </p>
+                {% elif line.strip() %}
+                <p style="font-size: 13px; color: #334155; line-height: 1.6; margin: 4px 0;">{{ line.strip() }}</p>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                We're excited to welcome you to the team! If you have any questions, don't hesitate to reach out.
+            </p>
+
+            <!-- Footer -->
+            <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                    Best regards,<br>
+                    <strong style="color: #1e293b;">HR Team</strong><br>
+                    Shellkode Technologies Pvt. Ltd.<br>
+                    <a href="mailto:{{ sender_email }}" style="color: #00ADEF; text-decoration: none;">{{ sender_email
+                        }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

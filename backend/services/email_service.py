@@ -101,53 +101,127 @@ def send_email(
 
 
 def send_offer_email(employee, db=None) -> dict:
-    """Send offer letter / welcome email to a new hire."""
+    """Send a formal offer letter email to a new hire."""
     first_name = employee.first_name or "there"
+    last_name = employee.last_name or ""
+    full_name = f"{first_name} {last_name}".strip()
     form_url = f"{FRONTEND_URL}/welcome/{employee.form_token}" if employee.form_token else ""
+    doj_str = employee.doj.strftime("%B %d, %Y") if employee.doj else "To be confirmed"
+    designation = employee.designation or "the offered position"
+    domain = employee.domain.value if employee.domain else "Engineering"
 
-    subject = f"Welcome to Shellkode Technologies, {first_name}!"
+    subject = f"Offer Letter — {designation} at Shellkode Technologies"
     body_html = f"""
-    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
-        <div style="background: linear-gradient(135deg, #4f46e5, #6366f1); padding: 32px; border-radius: 12px; color: white; text-align: center; margin-bottom: 24px;">
-            <h1 style="margin: 0; font-size: 24px;">Welcome to Shellkode!</h1>
-            <p style="margin: 8px 0 0; opacity: 0.9;">We're thrilled to have you join the team</p>
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 0; background: #f0f4ff;">
+        <!-- Header Banner -->
+        <div style="background: linear-gradient(135deg, #00275E, #003580); padding: 36px 32px; border-radius: 12px 12px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px; color: #ffffff; font-weight: 700; letter-spacing: -0.3px;">Offer of Employment</h1>
+            <p style="margin: 8px 0 0; color: rgba(255,255,255,0.75); font-size: 14px;">Shellkode Technologies Private Limited</p>
         </div>
 
-        <p>Hi <strong>{first_name}</strong>,</p>
+        <!-- Body -->
+        <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+            <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{full_name}</strong>,</p>
 
-        <p>We are delighted to confirm your offer for the position of <strong>{employee.designation}</strong>
-        in our <strong>{employee.domain.value if employee.domain else ''}</strong> team.</p>
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                We are pleased to extend an offer of employment for the position of
+                <strong style="color: #00275E;">{designation}</strong> in our
+                <strong style="color: #00275E;">{domain}</strong> team at Shellkode Technologies.
+            </p>
 
-        {f'<p>Your date of joining is <strong>{employee.doj}</strong>. Please make sure to arrive by 9:30 AM.</p>' if employee.doj else ''}
+            <!-- DOJ Highlight Box -->
+            <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-left: 4px solid #00ADEF; border-radius: 8px; padding: 20px 24px; margin: 24px 0;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b; width: 160px;">Position</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{designation}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Department</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{domain}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Expected Date of Joining</td>
+                        <td style="padding: 6px 0; color: #00275E; font-weight: 700; font-size: 15px;">{doj_str}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Reporting Time</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">9:30 AM IST</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Location</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">Shellkode Technologies Office</td>
+                    </tr>
+                </table>
+            </div>
 
-        <p>To help us prepare for your arrival, please complete your onboarding form:</p>
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                We believe your skills and experience will be a valuable addition to our team. Please find the key details of your offer above.
+            </p>
 
-        <div style="text-align: center; margin: 24px 0;">
-            <a href="{form_url}" style="display: inline-block; background: #4f46e5; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                Complete Your Details
-            </a>
+            <!-- Accept Instructions -->
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px 20px; margin: 24px 0;">
+                <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 600;">
+                    ✉️ To accept this offer:
+                </p>
+                <p style="margin: 8px 0 0; font-size: 13px; color: #78350f; line-height: 1.6;">
+                    Please <strong>reply to this email</strong> confirming your acceptance of the offer and your availability for the mentioned date of joining. A simple "I accept the offer" will suffice.
+                </p>
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                Once you accept, we'll begin your pre-boarding process. You'll receive a link to complete your onboarding details, including personal information, documents, and preferences.
+            </p>
+
+            {'<div style="text-align: center; margin: 28px 0;"><a href="' + form_url + '" style="display: inline-block; background: linear-gradient(135deg, #00275E, #003580); color: white; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,39,94,0.2);">Complete Your Onboarding Details</a></div>' if form_url else ''}
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                If you have any questions about the role, compensation, or joining process, please don't hesitate to reach out.
+            </p>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                We look forward to welcoming you to Shellkode!
+            </p>
+
+            <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                    Warm regards,<br>
+                    <strong style="color: #1e293b;">HR Team</strong><br>
+                    Shellkode Technologies Pvt. Ltd.<br>
+                    <a href="mailto:{SENDER_EMAIL}" style="color: #00ADEF; text-decoration: none;">{SENDER_EMAIL}</a>
+                </p>
+            </div>
         </div>
 
-        <p>If you have any questions, feel free to reach out to us at <a href="mailto:hr@shellkode.com">hr@shellkode.com</a>.</p>
-
-        <p style="color: #6b7280; font-size: 13px; margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-            Best regards,<br>
-            <strong>HR Team</strong><br>
-            Shellkode Technologies
-        </p>
+        <!-- Footer -->
+        <div style="text-align: center; padding: 16px; font-size: 11px; color: #94a3b8;">
+            This is an official communication from Shellkode Technologies.<br>
+            Please do not share this email with unauthorized persons.
+        </div>
     </div>
     """
 
-    body_text = f"""Hi {first_name},
+    body_text = f"""Dear {full_name},
 
-We are delighted to confirm your offer for the position of {employee.designation} in our {employee.domain.value if employee.domain else ''} team.
+We are pleased to extend an offer of employment for the position of {designation} in our {domain} team at Shellkode Technologies.
 
-{'Your date of joining is ' + str(employee.doj) + '.' if employee.doj else ''}
+OFFER DETAILS:
+- Position: {designation}
+- Department: {domain}
+- Expected Date of Joining: {doj_str}
+- Reporting Time: 9:30 AM IST
 
-Please complete your onboarding form at: {form_url}
+TO ACCEPT THIS OFFER:
+Please reply to this email confirming your acceptance and availability for the mentioned date of joining.
 
-Best regards,
-HR Team, Shellkode Technologies"""
+{('Complete your onboarding details at: ' + form_url) if form_url else ''}
+
+We look forward to welcoming you to Shellkode!
+
+Warm regards,
+HR Team
+Shellkode Technologies Pvt. Ltd.
+{SENDER_EMAIL}"""
 
     return send_email(
         to_email=employee.personal_email,
