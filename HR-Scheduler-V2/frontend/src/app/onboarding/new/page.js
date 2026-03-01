@@ -116,10 +116,6 @@ function SelectField({ label, options, placeholder = 'Select', value, onChange, 
 function StepGeneralInfo({ form, setField, refs }) {
     return (
         <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, justifyContent: 'flex-end' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0077b6" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0077b6" /><text x="6" y="17" fill="#fff" fontSize="12" fontWeight="bold">in</text></svg>
-                <span style={{ fontSize: 12, color: '#0077b6', fontWeight: 500 }}>Import from LinkedIn Recruiter</span>
-            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px' }}>
                 <InputField label="First Name" required value={form.first_name} onChange={v => setField('first_name', v)} />
                 <InputField label="Last Name" required value={form.last_name} onChange={v => setField('last_name', v)} />

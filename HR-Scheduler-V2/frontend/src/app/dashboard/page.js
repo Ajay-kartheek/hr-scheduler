@@ -73,7 +73,7 @@ function formatDate(dateStr) {
 
 /* Status config */
 const STATUS_CONFIG = {
-    waiting_for_input: { label: 'Pending', bg: 'linear-gradient(135deg, #fef3c7, #fde68a)', color: '#b45309', shadow: '0 1px 3px rgba(245,158,11,0.15)' },
+    waiting_for_input: { label: 'Pending', bg: 'linear-gradient(135deg, #fef9ec, #fef3c7)', color: '#b45309', shadow: '0 1px 3px rgba(245,158,11,0.08)' },
     welcome_sent: { label: 'Mail Sent', bg: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', color: '#1d4ed8', shadow: '0 1px 3px rgba(29,78,216,0.12)' },
     form_received: { label: 'Form Received', bg: 'linear-gradient(135deg, #dcfce7, #bbf7d0)', color: '#15803d', shadow: '0 1px 3px rgba(21,128,61,0.12)' },
     onboarding_in_progress: { label: 'Onboarding', bg: 'linear-gradient(135deg, #e0f2fe, #bae6fd)', color: '#0369a1', shadow: '0 1px 3px rgba(3,105,161,0.12)' },
@@ -172,42 +172,12 @@ export default function DashboardPage() {
             <main style={{ flex: 1, marginLeft: 88, padding: '16px 32px 32px', minHeight: '100vh' }}>
 
 
-                {/* Welcome + CTA Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 24 }}>
-                    <div>
-                        <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, margin: '0 0 2px 0', letterSpacing: 0.5 }}>Dashboard</p>
-                        <h1 style={{ fontSize: 26, fontWeight: 300, color: '#1e293b', letterSpacing: -0.5, margin: 0 }}>
-                            <span style={{ fontWeight: 700 }}>Welcome,</span> {user.name}
-                        </h1>
-                    </div>
-
-                    <div style={{
-                        background: 'linear-gradient(135deg, #001d3d 0%, #003566 35%, #00527a 65%, #0077b6 100%)',
-                        borderRadius: 16, color: '#fff', position: 'relative', overflow: 'hidden',
-                        display: 'flex', alignItems: 'center',
-                        boxShadow: '0 6px 24px rgba(0, 39, 94, 0.2)',
-                        padding: '14px 10px 14px 24px', minWidth: 300, flexShrink: 0,
-                    }}>
-                        <div style={{ position: 'absolute', width: 120, height: 120, borderRadius: '50%', background: 'rgba(0, 173, 239, 0.07)', top: -40, left: -20 }} />
-                        <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: 'rgba(0, 173, 239, 0.05)', bottom: -30, left: '45%' }} />
-                        <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
-                            <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px 0', lineHeight: 1.3 }}>Start a new journey</p>
-                            <button style={{
-                                padding: '7px 20px',
-                                background: 'linear-gradient(135deg, #00ADEF, #0ea5e9)',
-                                color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                                cursor: 'pointer', transition: 'all 0.2s',
-                                boxShadow: '0 4px 14px rgba(0,173,239,0.35)',
-                            }}
-                                onMouseEnter={e => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 6px 20px rgba(0,173,239,0.5)'; }}
-                                onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 14px rgba(0,173,239,0.35)'; }}
-                                onClick={() => router.push('/onboarding/new')}
-                            >New Onboarding</button>
-                        </div>
-                        <div style={{ width: 70, height: 70, flexShrink: 0, position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <RocketSVG />
-                        </div>
-                    </div>
+                {/* Welcome Row */}
+                <div style={{ marginBottom: 14 }}>
+                    <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, margin: '0 0 2px 0', letterSpacing: 0.5 }}>Dashboard</p>
+                    <h1 style={{ fontSize: 26, fontWeight: 300, color: '#1e293b', letterSpacing: -0.5, margin: 0 }}>
+                        <span style={{ fontWeight: 700 }}>Welcome,</span> {user.name}
+                    </h1>
                 </div>
 
                 {/* Stats Row */}
@@ -266,8 +236,8 @@ export default function DashboardPage() {
                                     {['all', 'joining_soon', 'started'].map(f => (
                                         <button key={f} onClick={() => { setEmpFilter(f); setSliderPage(0); }} style={{
                                             padding: '6px 14px', fontSize: 11, fontWeight: 600, borderRadius: 8, border: 'none',
-                                            background: empFilter === f ? 'linear-gradient(135deg, #00275E, #003580)' : '#f1f5f9',
-                                            color: empFilter === f ? '#fff' : '#64748b',
+                                            background: empFilter === f ? 'linear-gradient(135deg, #dbeafe, #bfdbfe)' : '#f1f5f9',
+                                            color: empFilter === f ? '#1d4ed8' : '#64748b',
                                             cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
                                         }}>
                                             {f === 'all' ? 'All' : f === 'joining_soon' ? 'Joining Soon' : 'Started'}
@@ -441,12 +411,12 @@ export default function DashboardPage() {
                                                     disabled={isSending}
                                                     style={{
                                                         padding: '5px 14px', fontSize: 11, fontWeight: 600,
-                                                        border: '1.5px solid #00275E', borderRadius: 8,
-                                                        background: isSending ? '#f1f5f9' : 'linear-gradient(135deg, #00275E, #003580)',
-                                                        color: isSending ? '#94a3b8' : '#fff',
+                                                        border: 'none', borderRadius: 8,
+                                                        background: isSending ? '#f1f5f9' : 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+                                                        color: isSending ? '#94a3b8' : '#1d4ed8',
                                                         cursor: isSending ? 'not-allowed' : 'pointer',
                                                         transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 5,
-                                                        whiteSpace: 'nowrap',
+                                                        whiteSpace: 'nowrap', boxShadow: '0 1px 3px rgba(29,78,216,0.12)',
                                                     }}
                                                 >
                                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>

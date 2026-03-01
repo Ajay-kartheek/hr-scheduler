@@ -66,14 +66,11 @@ export default function Sidebar() {
                 <div style={{
                     width: 36, height: 36, borderRadius: '50%', overflow: 'hidden',
                     border: '2px solid #00ADEF30',
-                    background: 'linear-gradient(135deg, #00275E, #003580)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#fff', fontSize: 12, fontWeight: 700,
                 }}>
-                    {user.name?.charAt(0) || 'H'}
+                    <img src="/avatar1.png" alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <span style={{ fontSize: 9, fontWeight: 600, color: '#00ADEF' }}>{user.name}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer', opacity: 0.6 }}
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#00ADEF' }}>{user.name}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer', opacity: 0.8 }}
                     onClick={handleLogout}
                 >
                     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
