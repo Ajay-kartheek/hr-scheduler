@@ -14,8 +14,8 @@ SCOPES = [
 ]
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # V2 backend root
-TOKEN_PATH = os.path.join(BASE_DIR, "..", "..", "backend", "token.json")
-CREDS_PATH = os.path.join(BASE_DIR, "..", "..", "backend", "credentials.json")
+TOKEN_PATH = os.path.join(BASE_DIR, "token.json")
+CREDS_PATH = os.path.join(BASE_DIR, "credentials.json")
 
 def main():
     # Delete old token

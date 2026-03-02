@@ -32,10 +32,10 @@ export default function RecruiterSidebar() {
             position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 10,
             paddingTop: 16, boxShadow: '2px 0 12px rgba(0,39,94,0.03)',
         }}>
-            <div style={{ marginBottom: 8, padding: '8px 0' }}>
-                <img src="/sk-icon.svg" alt="SK" style={{ width: 40, height: 40 }} />
+            <div style={{ marginBottom: 2, padding: '8px 0 0' }}>
+                <img src="/sk-icon.svg" alt="SK" style={{ width: 34, height: 34 }} />
             </div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#00275E', textAlign: 'center', lineHeight: 1.2, marginBottom: 20 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#00275E', textAlign: 'center', lineHeight: 1.2, marginBottom: 14 }}>
                 Shellkode
             </div>
 

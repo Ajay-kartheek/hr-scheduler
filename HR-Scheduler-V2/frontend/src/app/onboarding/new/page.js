@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import {
@@ -365,7 +365,7 @@ function StepOnboardingPlanning({ form, setField }) {
 /*          MAIN PAGE COMPONENT              */
 /* ═════════════════════════════════════════ */
 
-export default function NewOnboardingPage() {
+function NewOnboardingPage() {
     const searchParams = useSearchParams();
     const existingHireId = searchParams.get('hire');
 
@@ -636,5 +636,12 @@ export default function NewOnboardingPage() {
                 </div>
             </aside>
         </div>
+    );
+}
+export default function OnboardingPageWrapper() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <NewOnboardingPage />
+        </Suspense>
     );
 }
