@@ -18,7 +18,6 @@
 
         <!-- Body -->
         <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none;">
-            <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{{ full_name }}</strong>,</p>
 
             <!-- AI-generated personalized content -->
             {% for line in ai_body.split('\n') %}
@@ -40,7 +39,7 @@
                         <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{{ department }}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; color: #64748b;">Expected Date of Joining</td>
+                        <td style="padding: 6px 0; color: #64748b;">Date of Joining</td>
                         <td style="padding: 6px 0; color: #00275E; font-weight: 700; font-size: 15px;">{{ doj }}</td>
                     </tr>
                 </table>
