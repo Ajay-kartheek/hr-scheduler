@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { fetchDashboardStats, fetchWaitingHires, fetchRecentHires, sendWelcome, confirmJoined } from '@/lib/api';
+import { getAvatar } from '@/lib/avatars';
 
 /* ──── Rocket SVG ──── */
 function RocketSVG() {
@@ -62,7 +63,7 @@ const STAT_META = [
     { key: 'second_month', label: 'SECOND MONTH', color: '#8b5cf6', icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg> },
 ];
 
-const AVATARS = ['/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png'];
+
 const RING_COLORS = ['#8b5cf6', '#00ADEF', '#10b981', '#f59e0b', '#ec4899'];
 
 function formatDate(dateStr) {
@@ -111,6 +112,8 @@ export default function DashboardPage() {
             try { const p = JSON.parse(auth); setUser({ name: p.name || 'HR', role: p.role || 'hr' }); } catch { }
         }
         loadData();
+        const interval = setInterval(loadData, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     async function loadData() {
@@ -275,7 +278,7 @@ export default function DashboardPage() {
                                         }}>
                                             {employees.map((emp, i) => {
                                                 const ring = RING_COLORS[i % RING_COLORS.length];
-                                                const avatar = AVATARS[i % AVATARS.length];
+                                                const avatar = getAvatar(emp.first_name, i);
                                                 const name = `${emp.first_name} ${emp.last_name || ''}`.trim();
                                                 const needsConfirm = emp.status === 'onboarding_completed';
                                                 return (

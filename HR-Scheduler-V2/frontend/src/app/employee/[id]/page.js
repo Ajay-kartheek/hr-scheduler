@@ -5,8 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { fetchEmployee, fetchFormResponse, sendWelcome, startOnboarding } from '@/lib/api';
 
-const AVATARS = ['/avatar1.png', '/avatar2.png', '/avatar3.png', '/avatar4.png', '/avatar5.png'];
-
 const STATUS_CONFIG = {
     waiting_for_input: { label: 'Pending', bg: '#fef3c7', color: '#b45309', border: '#fde68a' },
     welcome_sent: { label: 'Mail Sent', bg: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
@@ -47,6 +45,8 @@ export default function EmployeeDetailPage() {
     useEffect(() => {
         if (!hireId) return;
         loadEmployee();
+        const interval = setInterval(loadEmployee, 10000);
+        return () => clearInterval(interval);
     }, [hireId]);
 
     async function loadEmployee() {
@@ -110,7 +110,7 @@ export default function EmployeeDetailPage() {
 
     const statusCfg = STATUS_CONFIG[hire.status] || STATUS_CONFIG.waiting_for_input;
     const name = `${hire.first_name} ${hire.last_name || ''}`.trim();
-    const avatar = AVATARS[Math.abs(name.charCodeAt(0)) % AVATARS.length];
+    const initials = `${hire.first_name?.[0] || ''}${hire.last_name?.[0] || ''}`.toUpperCase();
     const isPending = hire.status === 'waiting_for_input';
     const isMailSent = hire.status === 'welcome_sent';
     const isFormReceived = hire.status === 'form_received';
@@ -136,13 +136,12 @@ export default function EmployeeDetailPage() {
                     display: 'flex', alignItems: 'center', gap: 24,
                 }}>
                     <div style={{
-                        width: 80, height: 80, borderRadius: '50%', overflow: 'hidden',
-                        border: '3px solid #00ADEF30', padding: 3, flexShrink: 0,
-                        background: 'linear-gradient(135deg, #00ADEF10, transparent)',
+                        width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
+                        background: 'linear-gradient(135deg, #00275E, #003580)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: 1,
                     }}>
-                        <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#f8fafc' }}>
-                            <img src={avatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
+                        {initials}
                     </div>
 
                     <div style={{ flex: 1 }}>

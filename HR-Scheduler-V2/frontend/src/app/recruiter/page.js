@@ -12,6 +12,18 @@ const AVATARS = [
     'https://api.dicebear.com/7.x/personas/svg?seed=Sneha&backgroundColor=d1f4d8',
     'https://api.dicebear.com/7.x/personas/svg?seed=Varun&backgroundColor=ffdfbf',
     'https://api.dicebear.com/7.x/personas/svg?seed=Divya&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Ravi&backgroundColor=c0aede',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Priya&backgroundColor=ffd5dc',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Nithya&backgroundColor=d1f4d8',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Surya&backgroundColor=ffdfbf',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Pooja&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Aravind&backgroundColor=c0aede',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Lakshmi&backgroundColor=ffd5dc',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Harish&backgroundColor=d1f4d8',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Deepa&backgroundColor=ffdfbf',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Kalai&backgroundColor=b6e3f4',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Adhithya&backgroundColor=c0aede',
+    'https://api.dicebear.com/7.x/personas/svg?seed=Sanjay&backgroundColor=d1f4d8',
 ];
 
 const RING_COLORS = ['#00ADEF', '#6366f1', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6'];
@@ -39,6 +51,8 @@ export default function RecruiterDashboard() {
             try { const p = JSON.parse(auth); setUser({ name: p.name || 'Recruiter' }); } catch { }
         }
         loadData();
+        const interval = setInterval(loadData, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     async function loadData() {
