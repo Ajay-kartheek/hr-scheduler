@@ -236,7 +236,7 @@ export default function PortalOnboardingPage() {
                             border: '1px solid #e8ecf4', marginBottom: 24, fontSize: 13, color: '#475569', lineHeight: 1.8,
                         }}>
                             <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', margin: '0 0 10px', letterSpacing: 0.3 }}>CONFIDENTIALITY AND NON-DISCLOSURE AGREEMENT</h3>
-                            <p>This Non-Disclosure Agreement (&quot;Agreement&quot;) is entered into between Shellkode Technologies (&quot;Company&quot;) and the undersigned employee.</p>
+                            <p>This Non-Disclosure Agreement (&quot;Agreement&quot;) is entered into between Shellkode Pvt Ltd (&quot;Company&quot;) and the undersigned employee.</p>
                             <p><strong>1. Confidential Information:</strong> All business, technical, and financial information disclosed by the Company.</p>
                             <p><strong>2. Obligations:</strong> Employee shall not disclose, publish, or use any Confidential Information without prior written consent.</p>
                             <p><strong>3. Term:</strong> This agreement remains in effect during and 2 years after employment.</p>

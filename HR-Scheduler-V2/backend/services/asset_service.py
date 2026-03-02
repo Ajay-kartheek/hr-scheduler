@@ -38,7 +38,7 @@ def notify_asset_team(new_hire, role, db=None):
             <p><strong>Equipment Required:</strong></p>
             <ul>{equipment_html}</ul>
             <p style="color: #6b7280; font-size: 13px; margin-top: 24px;">
-                — HR Onboarding System, Shellkode Technologies
+                — HR Onboarding System, Shellkode Pvt Ltd
             </p>
         </div>
     </div>

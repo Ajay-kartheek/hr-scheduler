@@ -254,7 +254,7 @@ def send_portal_credentials(hire_id: UUID, db: Session = Depends(get_db)):
         from services.email_service import send_email
         body_html = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-            <h2 style="color: #00275E;">Welcome to Shellkode Technologies</h2>
+            <h2 style="color: #00275E;">Welcome to Shellkode Pvt Ltd</h2>
             <p>Hello {hire.first_name},</p>
             <p>Your employee portal is ready. Use the credentials below to log in:</p>
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
@@ -263,7 +263,7 @@ def send_portal_credentials(hire_id: UUID, db: Session = Depends(get_db)):
                 <p style="margin: 4px 0;"><strong>Password:</strong> {temp_password}</p>
             </div>
             <p>Please complete the mandatory onboarding steps after logging in.</p>
-            <p>Best regards,<br/>HR Team, Shellkode Technologies</p>
+            <p>Best regards,<br/>HR Team, Shellkode Pvt Ltd</p>
         </div>
         """
         email_result = send_email(

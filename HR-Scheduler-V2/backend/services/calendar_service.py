@@ -70,7 +70,7 @@ def create_first_week_events(new_hire, plan_tasks=None, db=None):
         {
             "summary": f"Welcome and Badge Collection -- {emp_name}",
             "description": (
-                f"Welcome {emp_name} to Shellkode Technologies.\n\n"
+                f"Welcome {emp_name} to Shellkode Pvt Ltd.\n\n"
                 "- Collect employee badge and welcome kit\n"
                 "- Office tour\n"
                 "- Get settled at your desk"

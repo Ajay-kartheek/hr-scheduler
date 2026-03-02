@@ -154,7 +154,7 @@ export default function WelcomeFormPage() {
                     <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: 'rgba(0,173,239,0.06)', top: -60, right: -40 }} />
                     <div style={{ position: 'absolute', width: 140, height: 140, borderRadius: '50%', background: 'rgba(0,173,239,0.04)', bottom: -50, left: -20 }} />
                     <img src="/sk-logo.svg" alt="Shellkode" style={{ height: 30, marginBottom: 16, position: 'relative', zIndex: 1 }} />
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: '0 0 4px 0', position: 'relative', zIndex: 1 }}>Welcome to Shellkode Technologies</h1>
+                    <h1 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: '0 0 4px 0', position: 'relative', zIndex: 1 }}>Welcome to Shellkode Pvt Ltd</h1>
                     <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: 0, position: 'relative', zIndex: 1 }}>Please complete your onboarding form below</p>
                 </div>
 
@@ -261,7 +261,7 @@ export default function WelcomeFormPage() {
                     >{submitting ? 'Submitting...' : 'Submit Onboarding Form'}</button>
 
                     <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 16 }}>
-                        This information is confidential and used only for your onboarding at Shellkode Technologies.
+                        This information is confidential and used only for your onboarding at Shellkode Pvt Ltd.
                     </p>
                 </form>
             </div>

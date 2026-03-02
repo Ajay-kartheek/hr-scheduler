@@ -596,7 +596,7 @@ export default function NewOnboardingPage() {
                             Start<br />
                             <span style={{ fontWeight: 800 }}>a new<br />journey</span>
                         </div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>at Shellkode Technologies</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>at Shellkode Pvt Ltd</div>
                     </div>
                 </div>
 

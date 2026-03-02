@@ -51,7 +51,7 @@ def generate_welcome_email_content(
     recruiter_notes: str = "",
 ) -> str:
     """Generate a personalized welcome email body using LLM."""
-    system = """You are an HR communications specialist at Shellkode Technologies.
+    system = """You are an HR communications specialist at Shellkode Pvt Ltd.
 Write a warm, professional welcome email for a new hire. The email should:
 - Be personalized based on the recruiter's notes
 - Mention their role and team
@@ -60,7 +60,7 @@ Write a warm, professional welcome email for a new hire. The email should:
 - Keep it concise (3-4 paragraphs max)
 - Don't include any subject line — just the email body
 - Don't include any HTML — plain text only
-- Sign off as 'HR Team, Shellkode Technologies'"""
+- Sign off as 'HR Team, Shellkode Pvt Ltd'"""
 
     user = f"""Write a welcome email for:
 Name: {first_name} {last_name}
@@ -82,7 +82,7 @@ def generate_onboarding_plan(
     custom_notes: str = "",
 ) -> str:
     """Generate a personalized 1-week onboarding plan."""
-    system = """You are an onboarding specialist at Shellkode Technologies.
+    system = """You are an onboarding specialist at Shellkode Pvt Ltd.
 Create a structured 1-week (5-day) onboarding schedule for a new hire. Format as:
 
 DAY 1: Welcome and Setup
@@ -127,7 +127,7 @@ def generate_offer_letter(
     custom_notes: str = "",
 ) -> str:
     """Generate a personalized offer letter using LLM."""
-    system = """You are a talent acquisition specialist at Shellkode Technologies.
+    system = """You are a talent acquisition specialist at Shellkode Pvt Ltd.
 Write a warm, professional offer letter for a selected candidate. The letter should:
 - Congratulate them on being selected
 - Mention the role and department
@@ -156,7 +156,7 @@ def classify_candidate_reply(
     reply_text: str = "",
 ) -> dict:
     """Classify a candidate's reply to an offer letter using LLM."""
-    system = """You are an AI assistant for Shellkode Technologies' recruitment team.
+    system = """You are an AI assistant for Shellkode Pvt Ltd' recruitment team.
 Analyze a candidate's reply to an offer letter and classify it.
 
 You MUST respond with ONLY a valid JSON object (no markdown, no backticks):
@@ -208,17 +208,17 @@ def _mock_response(prompt: str) -> str:
     if "welcome email" in lower:
         return """Dear New Hire,
 
-Welcome to Shellkode Technologies! We're thrilled to have you join our team.
+Welcome to Shellkode Pvt Ltd! We're thrilled to have you join our team.
 
 Your skills and experience will be a valuable addition. We've been looking forward to your arrival and have everything prepared for a smooth start.
 
 Please don't hesitate to reach out if you have any questions before your joining date.
 
 Warm regards,
-HR Team, Shellkode Technologies"""
+HR Team, Shellkode Pvt Ltd"""
 
     if "offer letter" in lower:
-        return """We are delighted to inform you that after careful consideration, we have selected you for this position at Shellkode Technologies. Your skills, experience, and passion stood out during the interview process.
+        return """We are delighted to inform you that after careful consideration, we have selected you for this position at Shellkode Pvt Ltd. Your skills, experience, and passion stood out during the interview process.
 
 At Shellkode, we believe in fostering an environment of innovation and continuous growth. You will be joining a dynamic team that values collaboration, technical excellence, and creative problem-solving. We are confident that your expertise will make a meaningful impact.
 

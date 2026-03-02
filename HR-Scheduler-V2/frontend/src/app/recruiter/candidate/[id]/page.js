@@ -119,21 +119,24 @@ export default function CandidateProfile() {
             <main style={{ flex: 1, marginLeft: 88, padding: '16px 32px 32px', minHeight: '100vh' }}>
 
                 {/* Back + Header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                <div style={{ marginBottom: 20 }}>
                     <button onClick={() => router.push('/recruiter')} style={{
                         display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px',
                         background: '#fff', border: '1px solid #e8ecf4', borderRadius: 8,
                         fontSize: 12, color: '#64748b', cursor: 'pointer', fontWeight: 500,
+                        marginBottom: 12,
                     }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
                         Back
                     </button>
-                    <div>
-                        <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, margin: '0 0 2px', letterSpacing: 0.5 }}>Candidate Profile</p>
-                        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1e293b', margin: 0 }}>{name}</h1>
-                    </div>
-                    <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 20, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 600 }}>
-                        {sc.label}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                            <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, margin: '0 0 6px', letterSpacing: 0.5 }}>Candidate Profile</p>
+                            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1e293b', margin: 0 }}>{name}</h1>
+                        </div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 20, background: sc.bg, color: sc.color, fontSize: 11, fontWeight: 600 }}>
+                            {sc.label}
+                        </div>
                     </div>
                 </div>
 

@@ -148,14 +148,14 @@ def generate_offer(candidate_id: UUID, data: GenerateOfferRequest, db: Session =
         logger.error(f"Offer letter generation failed: {e}")
         offer_content = f"""Dear {c.first_name},
 
-We are pleased to offer you the position of {c.designation or 'Team Member'} at Shellkode Technologies.
+We are pleased to offer you the position of {c.designation or 'Team Member'} at Shellkode Pvt Ltd.
 
 We believe your skills and experience will be a great addition to our team. Please find the details of your offer below.
 
 We look forward to welcoming you aboard!
 
 Best regards,
-HR Team, Shellkode Technologies"""
+HR Team, Shellkode Pvt Ltd"""
 
     # Save draft (don't change status yet)
     c.offer_letter_content = offer_content
@@ -222,7 +222,7 @@ async def send_offer(
 
         email_result = send_email(
             to_email=c.email,
-            subject=f"Offer Letter — {c.designation or 'Position'} at Shellkode Technologies | {name}",
+            subject=f"Offer Letter — {c.designation or 'Position'} at Shellkode Pvt Ltd | {name}",
             body_html=body_html,
             body_text=offer_content,
             attachments=attachment_paths,

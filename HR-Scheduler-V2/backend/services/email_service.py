@@ -170,12 +170,12 @@ def send_welcome_email(new_hire, db=None) -> dict:
         logger.error(f"AI welcome generation failed: {e}")
         ai_body = f"""Dear {first_name},
 
-Welcome to Shellkode Technologies! We are excited to have you join us as {designation} in our {department} team.
+Welcome to Shellkode Pvt Ltd! We are excited to have you join us as {designation} in our {department} team.
 
 Your date of joining is {doj_str}. We look forward to seeing you!
 
 Warm regards,
-HR Team, Shellkode Technologies"""
+HR Team, Shellkode Pvt Ltd"""
 
     # Render HTML template
     try:
@@ -195,7 +195,7 @@ HR Team, Shellkode Technologies"""
         logger.error(f"Template render failed: {e}")
         body_html = f"<pre>{ai_body}</pre>"
 
-    subject = f"Welcome to Shellkode Technologies — {designation}"
+    subject = f"Welcome to Shellkode Pvt Ltd — {designation}"
 
     return send_email(
         to_email=new_hire.personal_email,
@@ -227,7 +227,7 @@ def send_onboarding_plan_email(new_hire, plan_text: str, db=None) -> dict:
         logger.error(f"Template render failed: {e}")
         body_html = f"<pre>{plan_text}</pre>"
 
-    subject = f"Your Onboarding Plan — Shellkode Technologies"
+    subject = f"Your Onboarding Plan — Shellkode Pvt Ltd"
 
     return send_email(
         to_email=new_hire.personal_email,
@@ -308,7 +308,7 @@ Department: {department}
 Your access card, IT equipment, and internal tools are being provisioned.
 Report to the front desk on your first day to collect your badge and welcome kit.
 {portal_text}
-— HR Team, Shellkode Technologies"""
+— HR Team, Shellkode Pvt Ltd"""
 
     subject = f"Welcome Aboard — Your Credentials & Access | {full_name}"
 

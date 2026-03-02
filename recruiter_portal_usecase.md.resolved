@@ -1,0 +1,106 @@
+# Shellkode HR Scheduler — Use Case Definition
+
+---
+
+## Problem Statement
+
+Enterprise employee onboarding is a **fragmented, manual, multi-stakeholder process** spanning recruiters, HR teams, and new hires — each using disconnected tools (email, spreadsheets, shared drives). This leads to slow offer cycles, missed onboarding steps, poor Day-1 experiences, and zero pipeline visibility across teams.
+
+---
+
+## Solution
+
+An **AI-powered, end-to-end hiring and onboarding platform** with three role-based portals that automate the entire journey — from candidate selection to a fully onboarded, productive employee.
+
+---
+
+## The Three Portals
+
+### 1. 🎯 Recruiter Portal
+
+**Purpose**: Manage the offer letter pipeline from selection to acceptance.
+
+| Capability | Description |
+|---|---|
+| Candidate Pipeline Dashboard | Track candidates across stages — Selected, Offer Sent, Negotiating, Accepted, Rejected |
+| AI Offer Letter Generation | LLM generates personalized offer letters from candidate profile, role, and recruiter notes |
+| One-Click Offer Dispatch | Review, edit, attach documents, and send offers directly from the portal |
+| LLM Reply Classification | AI auto-classifies candidate email replies as Accept / Negotiate / Reject / Needs Review |
+| Smart Counter-Responses | AI drafts negotiation responses for recruiter approval |
+| Seamless HR Handoff | Convert accepted candidates to New Hires with one click — data flows into HR portal |
+
+---
+
+### 2. 🏢 HR Portal
+
+**Purpose**: Orchestrate the full onboarding journey for new hires handed off by recruiters.
+
+| Capability | Description |
+|---|---|
+| Onboarding Dashboard | Pipeline stats — Onboarding, Provisioning, First Month, Second Month — with employee cards |
+| AI Welcome Emails | LLM-personalized welcome emails sent with self-service form links |
+| 4-Step Onboarding Wizard | General Info → Job & Assets → Documents → Onboarding Planning |
+| AI Onboarding Plans | LLM generates role-specific first-week schedules with calendar invites |
+| Asset Provisioning | Auto-assign equipment packages based on role (laptops, monitors, peripherals) |
+| Document Management | Upload, track, and manage onboarding documents (NDA, policies, etc.) |
+| Employee Verification | Confirm joining, assign company email, employee ID, and activate |
+
+---
+
+### 3. 👤 Employee Portal
+
+**Purpose**: Self-service onboarding experience for new hires.
+
+| Capability | Description |
+|---|---|
+| Personal Info Form | New hire fills in personal details, emergency contacts, bank info via a secure link |
+| Document Access | View and download company policies, NDA, and onboarding documents |
+| Onboarding Schedule | See their personalized first-week calendar with sessions, introductions, and training |
+| Status Tracking | Real-time visibility into their onboarding progress and pending actions |
+
+---
+
+## End-to-End Pipeline
+
+```
+RECRUITER                         HR                              EMPLOYEE
+─────────                    ──────────                      ─────────────
+Selected Candidates          Waiting for Input                Receives Welcome Email
+       │                            │                                │
+  AI Generates Offer         Sends Welcome Email              Fills Self-Service Form
+       │                            │                                │
+  Sends Offer Letter         Reviews Form Response            Views Onboarding Plan
+       │                            │                                │
+  LLM Classifies Reply       4-Step Onboarding Wizard         Accesses Documents
+       │                            │                                │
+  Accepted ──────────────►   Provisions Assets + Plan         Joins on Day 1
+                                    │                                │
+                             Confirms Joined ◄───────────── Reports to Office
+                                    │
+                                 ACTIVE ✓
+```
+
+---
+
+## AI Capabilities (AWS Bedrock / Claude)
+
+| Function | Portal | What It Does |
+|---|---|---|
+| Offer Letter Generation | Recruiter | Drafts personalized offer letters from candidate context |
+| Reply Classification | Recruiter | Classifies candidate email replies into actionable categories |
+| Counter-Offer Drafting | Recruiter | Suggests negotiation responses |
+| Welcome Email Generation | HR | Writes personalized welcome emails for new hires |
+| Onboarding Plan Generation | HR | Creates role-specific first-week schedules |
+
+---
+
+## Impact
+
+| Metric | Before | After |
+|---|---|---|
+| Offer letter turnaround | 2–3 days | **Minutes** (AI-generated) |
+| Reply classification | Manual email reading | **Automated** (LLM) |
+| Recruiter → HR handoff | Copy-paste across tools | **One-click** transfer |
+| Onboarding plan creation | Generic template | **AI-personalized** per role |
+| Pipeline visibility | Fragmented | **Single dashboard** per role |
+| New hire Day-1 readiness | Inconsistent | **100% provisioned** |

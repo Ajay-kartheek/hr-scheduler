@@ -1,74 +1,84 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"></head>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
 <body style="margin: 0; padding: 0; background: #f0f4ff; font-family: 'Inter', Arial, sans-serif;">
-<div style="max-width: 640px; margin: 0 auto; padding: 20px;">
+    <div style="max-width: 640px; margin: 0 auto; padding: 20px;">
 
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #00275E, #003580); padding: 36px 32px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 22px; color: #ffffff; font-weight: 700;">Welcome to Shellkode Technologies</h1>
-        <p style="margin: 8px 0 0; color: rgba(255,255,255,0.75); font-size: 14px;">We're excited to have you on board!</p>
-    </div>
+        <!-- Header -->
+        <div
+            style="background: linear-gradient(135deg, #00275E, #003580); padding: 36px 32px; border-radius: 12px 12px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px; color: #ffffff; font-weight: 700;">Welcome to Shellkode Pvt Ltd</h1>
+            <p style="margin: 8px 0 0; color: rgba(255,255,255,0.75); font-size: 14px;">We're excited to have you on
+                board!</p>
+        </div>
 
-    <!-- Body -->
-    <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none;">
-        <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{{ full_name }}</strong>,</p>
+        <!-- Body -->
+        <div style="background: #ffffff; padding: 32px; border: 1px solid #e2e8f0; border-top: none;">
+            <p style="font-size: 15px; color: #1e293b; line-height: 1.7;">Dear <strong>{{ full_name }}</strong>,</p>
 
-        <!-- AI-generated personalized content -->
-        {% for line in ai_body.split('\n') %}
+            <!-- AI-generated personalized content -->
+            {% for line in ai_body.split('\n') %}
             {% if line.strip() %}
-                <p style="font-size: 14px; color: #334155; line-height: 1.7;">{{ line }}</p>
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">{{ line }}</p>
             {% endif %}
-        {% endfor %}
+            {% endfor %}
 
-        <!-- DOJ Highlight Box -->
-        <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-left: 4px solid #00ADEF; border-radius: 8px; padding: 20px 24px; margin: 24px 0;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <tr>
-                    <td style="padding: 6px 0; color: #64748b; width: 160px;">Position</td>
-                    <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{{ designation }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 6px 0; color: #64748b;">Department</td>
-                    <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{{ department }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 6px 0; color: #64748b;">Expected Date of Joining</td>
-                    <td style="padding: 6px 0; color: #00275E; font-weight: 700; font-size: 15px;">{{ doj }}</td>
-                </tr>
-            </table>
-        </div>
+            <!-- DOJ Highlight Box -->
+            <div
+                style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-left: 4px solid #00ADEF; border-radius: 8px; padding: 20px 24px; margin: 24px 0;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b; width: 160px;">Position</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{{ designation }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Department</td>
+                        <td style="padding: 6px 0; color: #1e293b; font-weight: 600;">{{ department }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #64748b;">Expected Date of Joining</td>
+                        <td style="padding: 6px 0; color: #00275E; font-weight: 700; font-size: 15px;">{{ doj }}</td>
+                    </tr>
+                </table>
+            </div>
 
-        <p style="font-size: 14px; color: #334155; line-height: 1.7;">
-            To help us prepare for your arrival, please complete your onboarding form:
-        </p>
-
-        <!-- CTA Button -->
-        <div style="text-align: center; margin: 28px 0;">
-            <a href="{{ form_url }}" style="display: inline-block; background: linear-gradient(135deg, #00275E, #003580); color: white; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,39,94,0.2);">
-                Complete Your Onboarding Form →
-            </a>
-        </div>
-
-        <p style="font-size: 14px; color: #334155; line-height: 1.7;">
-            If you have any questions, feel free to reach out to us.
-        </p>
-
-        <!-- Footer -->
-        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
-                Warm regards,<br>
-                <strong style="color: #1e293b;">HR Team</strong><br>
-                Shellkode Technologies Pvt. Ltd.<br>
-                <a href="mailto:{{ sender_email }}" style="color: #00ADEF; text-decoration: none;">{{ sender_email }}</a>
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                To help us prepare for your arrival, please complete your onboarding form:
             </p>
+
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 28px 0;">
+                <a href="{{ form_url }}"
+                    style="display: inline-block; background: linear-gradient(135deg, #00275E, #003580); color: white; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,39,94,0.2);">
+                    Complete Your Onboarding Form →
+                </a>
+            </div>
+
+            <p style="font-size: 14px; color: #334155; line-height: 1.7;">
+                If you have any questions, feel free to reach out to us.
+            </p>
+
+            <!-- Footer -->
+            <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                    Warm regards,<br>
+                    <strong style="color: #1e293b;">HR Team</strong><br>
+                    Shellkode Pvt Ltd<br>
+                    <a href="mailto:{{ sender_email }}" style="color: #00ADEF; text-decoration: none;">{{ sender_email
+                        }}</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div style="text-align: center; padding: 16px; font-size: 11px; color: #94a3b8; border-radius: 0 0 12px 12px;">
+            This is an official communication from Shellkode Pvt Ltd.
         </div>
     </div>
-
-    <!-- Disclaimer -->
-    <div style="text-align: center; padding: 16px; font-size: 11px; color: #94a3b8; border-radius: 0 0 12px 12px;">
-        This is an official communication from Shellkode Technologies.
-    </div>
-</div>
 </body>
+
 </html>

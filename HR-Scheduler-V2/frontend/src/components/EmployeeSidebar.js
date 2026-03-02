@@ -46,7 +46,7 @@ export default function EmployeeSidebar({ employee }) {
                 <img src="/sk-icon.svg" alt="SK" style={{ width: 40, height: 40 }} />
             </div>
             <div style={{ fontSize: 9, fontWeight: 700, color: '#00275E', textAlign: 'center', lineHeight: 1.2, marginBottom: 20 }}>
-                Shellkode<br /><span style={{ fontWeight: 400, color: '#94a3b8', fontSize: 8 }}>Technologies</span>
+                Shellkode
             </div>
 
             <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, width: '100%', padding: '0 8px' }}>

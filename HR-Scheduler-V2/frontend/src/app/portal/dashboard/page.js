@@ -189,7 +189,7 @@ export default function PortalDashboardPage() {
                             padding: '24px 22px', color: '#fff', position: 'relative', overflow: 'hidden',
                         }}>
                             <div style={{ position: 'absolute', top: -20, right: -20, width: 90, height: 90, borderRadius: '50%', background: 'rgba(0,173,239,0.1)' }} />
-                            <div style={{ fontSize: 9, fontWeight: 600, color: '#64748b', letterSpacing: 1.2, marginBottom: 14 }}>SHELLKODE TECHNOLOGIES</div>
+                            <div style={{ fontSize: 9, fontWeight: 600, color: '#64748b', letterSpacing: 1.2, marginBottom: 14 }}>SHELLKODE</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
                                 <div style={{
                                     width: 46, height: 46, borderRadius: '50%',
