@@ -3,7 +3,7 @@
  * Thin wrapper around fetch for the V2 FastAPI backend.
  */
 
-const API_BASE = '';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 
 async function apiFetch(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, {
@@ -130,3 +130,18 @@ export const raiseRequest = (id, data) =>
 export const getPortalRequests = (id) => apiFetch(`/api/portal/requests/${id}`);
 export const sendPortalCredentials = (id) =>
     apiFetch(`/api/employees/${id}/send-portal-credentials`, { method: 'POST' });
+
+// ── AI Agent ──
+export const fetchAgentStats = () => apiFetch('/api/agent/stats');
+export const fetchFlaggedItems = () => apiFetch('/api/agent/flagged');
+export const fetchAgentActivity = (limit = 50) => apiFetch(`/api/agent/activity?limit=${limit}`);
+export const approveDraft = (candidateId, editedContent = null) =>
+    apiFetch(`/api/agent/flagged/${candidateId}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({ edited_content: editedContent }),
+    });
+export const dismissFlag = (candidateId, reason = null) =>
+    apiFetch(`/api/agent/flagged/${candidateId}/dismiss`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+    });

@@ -152,15 +152,7 @@ export default function PortalLoginPage() {
                     </button>
                 </form>
 
-                {/* Demo hint */}
-                <div style={{
-                    marginTop: 20, padding: '10px 14px', borderRadius: 10,
-                    background: '#f0f4ff', border: '1px solid #e2e8f0',
-                    fontSize: 11, color: '#64748b', textAlign: 'center',
-                }}>
-                    <span style={{ fontWeight: 600, color: '#00ADEF' }}>Demo: </span>
-                    priya.sharma@shellkode.com / welcome123
-                </div>
+
 
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginTop: 16, marginBottom: 0 }}>
                     Employee access only • <a href="/login" style={{ color: '#00ADEF', textDecoration: 'none', fontWeight: 600 }}>Admin Login</a>

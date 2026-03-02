@@ -54,6 +54,7 @@ class CandidateOut(BaseModel):
 
 class GenerateOfferRequest(BaseModel):
     custom_notes: Optional[str] = None
+    proposed_doj: Optional[str] = None  # Proposed date of joining (YYYY-MM-DD)
 
 
 class SimulateReplyRequest(BaseModel):
@@ -89,6 +90,8 @@ def _candidate_to_dict(c: Candidate) -> dict:
         "conversation_history": c.conversation_history or [],
         "doj": str(c.doj) if c.doj else None,
         "converted_hire_id": c.converted_hire_id,
+        "flagged": c.flagged or False,
+        "ai_confidence": c.ai_confidence,
         "created_at": c.created_at,
     }
 
@@ -143,6 +146,7 @@ def generate_offer(candidate_id: UUID, data: GenerateOfferRequest, db: Session =
             department=c.department.name if c.department else "",
             offered_ctc=c.offered_ctc or "",
             custom_notes=data.custom_notes or c.recruiter_notes or "",
+            proposed_doj=data.proposed_doj or "",
         )
     except Exception as e:
         logger.error(f"Offer letter generation failed: {e}")
@@ -159,6 +163,13 @@ HR Team, Shellkode Pvt Ltd"""
 
     # Save draft (don't change status yet)
     c.offer_letter_content = offer_content
+    # Store proposed DOJ if provided
+    if data.proposed_doj:
+        try:
+            from datetime import date as date_type
+            c.doj = date_type.fromisoformat(data.proposed_doj)
+        except ValueError:
+            pass
     db.commit()
 
     return {"offer_content": offer_content}
@@ -319,15 +330,14 @@ def simulate_reply(candidate_id: UUID, data: SimulateReplyRequest, db: Session =
             "suggested_response": "",
         }
 
-    # Update status based on classification
+    # Update status based on classification (only for non-accepted decisions)
+    # For accepted: let handle_classified_reply manage status to enable date confirmation flow
     decision = classification.get("decision", "manual_review").lower()
-    if decision == "accepted":
-        c.status = CandidateStatus.ACCEPTED
-    elif decision == "rejected":
+    if decision == "rejected":
         c.status = CandidateStatus.REJECTED
     elif decision == "negotiating":
         c.status = CandidateStatus.NEGOTIATING
-    else:
+    elif decision != "accepted":
         c.status = CandidateStatus.MANUAL_REVIEW
 
     # Add classification to conversation
@@ -344,6 +354,15 @@ def simulate_reply(candidate_id: UUID, data: SimulateReplyRequest, db: Session =
 
     db.commit()
     db.refresh(c)
+
+    # Trigger auto-reply flow (handles accepted date confirmation, auto-replies, flagging)
+    try:
+        from services.auto_reply_service import handle_classified_reply
+        handle_classified_reply(c, classification, db)
+        db.commit()
+        db.refresh(c)
+    except Exception as e:
+        logger.error(f"Auto-reply error in simulate: {e}")
 
     return {
         "classification": classification,

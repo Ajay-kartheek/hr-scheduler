@@ -125,28 +125,38 @@ def generate_offer_letter(
     department: str = "",
     offered_ctc: str = "",
     custom_notes: str = "",
+    proposed_doj: str = "",
 ) -> str:
     """Generate a personalized offer letter using LLM."""
-    system = """You are a talent acquisition specialist at Shellkode Pvt Ltd.
+    doj_instruction = ""
+    if proposed_doj:
+        doj_instruction = f"\n- The proposed date of joining is {proposed_doj}. Include this in the letter and ask them to confirm if this date works or suggest an alternative."
+    else:
+        doj_instruction = "\n- Ask them to confirm their preferred date of joining"
+
+    system = f"""You are a talent acquisition specialist at Shellkode Pvt Ltd.
 Write a warm, professional offer letter for a selected candidate. The letter should:
 - Congratulate them on being selected
 - Mention the role and department
 - If CTC is provided, mention the compensation package
 - Highlight the company culture and growth opportunities
-- Mention benefits (health insurance, learning budget, flexible hours, team events)
-- Ask them to confirm acceptance and preferred date of joining
+- Mention benefits (health insurance, learning budget, flexible hours, team events){doj_instruction}
 - Keep it concise (4-5 paragraphs)
-- Don't include subject line, greeting, or sign-off — just the body paragraphs
+- Do NOT include any greeting (no Hi/Hello/Dear), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body paragraphs
 - Plain text only, no HTML or markdown"""
 
-    user = f"""Write an offer letter for:
-Name: {first_name} {last_name}
-Position: {designation}
-Department: {department}
-Offered CTC: {offered_ctc}
-Recruiter Notes: {custom_notes}"""
+    user_parts = [
+        f"Write an offer letter for:",
+        f"Name: {first_name} {last_name}",
+        f"Position: {designation}",
+        f"Department: {department}",
+        f"Offered CTC: {offered_ctc}",
+    ]
+    if proposed_doj:
+        user_parts.append(f"Proposed Date of Joining: {proposed_doj}")
+    user_parts.append(f"Recruiter Notes: {custom_notes}")
 
-    return invoke_llm(system, user, max_tokens=800)
+    return invoke_llm(system, "\n".join(user_parts), max_tokens=800)
 
 
 def classify_candidate_reply(
@@ -155,22 +165,45 @@ def classify_candidate_reply(
     offer_content: str = "",
     reply_text: str = "",
 ) -> dict:
-    """Classify a candidate's reply to an offer letter using LLM."""
-    system = """You are an AI assistant for Shellkode Pvt Ltd' recruitment team.
+    """Classify a candidate's reply to an offer letter using LLM.
+    Returns decision, reasoning, suggested_response, confidence (0.0-1.0), and joining_date if mentioned."""
+    system = """You are an AI assistant for Shellkode Pvt Ltd's recruitment team.
 Analyze a candidate's reply to an offer letter and classify it.
 
 You MUST respond with ONLY a valid JSON object (no markdown, no backticks):
 {
     "decision": "accepted" | "rejected" | "negotiating" | "manual_review",
+    "confidence": 0.0 to 1.0,
     "reasoning": "brief explanation of why you classified it this way",
-    "suggested_response": "a draft response the recruiter could send back"
+    "suggested_response": "a draft response body the recruiter could send back. Do NOT include any greeting (no Hi/Hello/Dear Name), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body paragraph(s).",
+    "joining_date": "YYYY-MM-DD if the candidate mentions a specific joining date or start date, otherwise null"
 }
+
+Confidence guidelines:
+- 0.9+: Very clear intent (e.g., "I accept the offer" or "I decline")
+- 0.7-0.9: Likely intent with some ambiguity
+- 0.5-0.7: Uncertain, could go either way
+- Below 0.5: Very ambiguous, should be manual_review
 
 Classification rules:
 - "accepted": Candidate clearly accepts the offer, mentions joining date, or is enthusiastic
 - "rejected": Candidate clearly declines, has taken another offer, or is not interested
 - "negotiating": Candidate wants to discuss salary, role, benefits, timeline, or has conditions
-- "manual_review": Reply is ambiguous, off-topic, or needs human judgment"""
+- "manual_review": Reply is ambiguous, off-topic, or needs human judgment
+
+IMPORTANT for joining_date — you MUST extract this carefully:
+- ONLY extract dates from the CANDIDATE'S REPLY text, NOT from the offer letter content
+- If the candidate mentions ANY date in THEIR reply (e.g., "March 3rd works", "I can join on 15th", "starting from 1st April"), extract it as YYYY-MM-DD
+- "March 3rd" → "2026-03-03", "April 1st" → "2026-04-01", "15th March" → "2026-03-15"
+- Use the current year (2026) if not specified. Use next year if the month has already passed.
+- If the candidate just says "I accept" without mentioning any date, set joining_date to null — do NOT copy the date from the offer letter
+- EXCEPTION: if the candidate explicitly references the proposed date (e.g., "that date works", "the proposed date is fine", "yes the joining date works"), then extract the proposed date from the offer letter
+- Only set a date if the candidate EXPLICITLY mentions or confirms a date in their reply text
+
+IMPORTANT for suggested_response when decision is "accepted":
+- Check if the offer letter mentions a proposed joining/start date
+- If the offer DOES mention a joining date but the candidate didn't confirm it, the suggested_response MUST ask them to confirm THAT SPECIFIC DATE (e.g., "Could you please confirm if the proposed joining date of March 15 works for you?"). Do NOT generically ask "let us know your preferred start date".
+- If the offer does NOT mention a joining date, ask them for their preferred joining date."""
 
     user = f"""Candidate: {candidate_name}
 Position: {designation}
@@ -187,18 +220,103 @@ Classify this reply:"""
     # Parse the JSON response
     import json
     try:
-        # Clean up potential markdown formatting
         cleaned = raw.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[1].rsplit("```", 1)[0]
-        return json.loads(cleaned)
+        result = json.loads(cleaned)
+        # Ensure confidence exists
+        if "confidence" not in result:
+            result["confidence"] = 0.5
+        return result
     except (json.JSONDecodeError, IndexError):
         logger.warning(f"Failed to parse LLM classification: {raw[:200]}")
         return {
             "decision": "manual_review",
+            "confidence": 0.0,
             "reasoning": f"Could not parse LLM response. Raw: {raw[:200]}",
             "suggested_response": "",
         }
+
+
+def generate_followup_email(
+    candidate_name: str,
+    designation: str = "",
+    followup_number: int = 1,
+    days_since_offer: int = 3,
+) -> str:
+    """Generate a personalized follow-up email for an unresponsive candidate."""
+    system = """You are drafting a follow-up email on behalf of the HR team at Shellkode Pvt Ltd.
+Write a warm, professional follow-up email. Keep it brief (3-5 sentences).
+Do NOT include any greeting (no Hi/Hello/Dear), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body paragraph(s).
+Match the tone to the follow-up number:
+- Follow-up 1: Friendly check-in, show enthusiasm about them joining
+- Follow-up 2: Slightly more urgent, mention that the team is eager to finalize
+- Follow-up 3: Final reminder, mention that the offer may need to be closed soon"""
+
+    user = f"""Candidate: {candidate_name}
+Position: {designation}
+Follow-up number: {followup_number} of 3
+Days since offer was sent: {days_since_offer}
+
+Write the follow-up email body:"""
+
+    return invoke_llm(system, user, max_tokens=400)
+
+
+def generate_auto_reply(
+    candidate_name: str,
+    designation: str = "",
+    decision: str = "",
+    reply_text: str = "",
+    conversation_history: list = None,
+) -> str:
+    """Generate a smart auto-reply based on the classified decision."""
+    history_summary = ""
+    if conversation_history:
+        recent = [h for h in conversation_history[-6:] if h.get("content")]
+        history_summary = "\n".join(
+            f"  {'Candidate' if h.get('sender')=='candidate' else 'Shellkode'}: {h['content'][:200]}"
+            for h in recent
+        )
+
+    prompts = {
+        "accepted": f"""The candidate has ACCEPTED the offer. Write a warm congratulations email.
+- Thank them for choosing Shellkode Pvt Ltd
+- Mention next steps (HR will share onboarding details and joining kit soon)
+- If they mentioned a joining date, acknowledge it and confirm the team is preparing for their arrival
+- Do NOT ask for a start date or joining date — it has already been confirmed
+- Keep it enthusiastic but professional, 3-4 sentences
+- Do NOT include any greeting (no Hi/Hello/Dear), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body""",
+
+        "rejected": f"""The candidate has DECLINED the offer. Write a graceful closure email.
+- Thank them for their time and consideration
+- Wish them well in their future endeavors
+- Leave the door open for future opportunities
+- Keep it professional and warm, 3-4 sentences
+- Do NOT include any greeting (no Hi/Hello/Dear), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body""",
+
+        "negotiating": f"""The candidate is NEGOTIATING. Draft a balanced counter-response.
+- Acknowledge their concerns from their reply
+- Be open to discussion while being professional
+- Suggest scheduling a call to discuss further
+- Keep it collaborative, 3-5 sentences
+- Do NOT include any greeting (no Hi/Hello/Dear), subject line, or sign-off (no Warm regards/Best regards/signature) — just the body
+
+Their reply was: "{reply_text[:300]}"
+""",
+    }
+
+    system = f"""You are the HR team at Shellkode Pvt Ltd responding to a candidate.
+Write only the email body — no subject line, no "Dear [Name]" greeting, no signatures."""
+
+    user = f"""Candidate: {candidate_name}
+Position: {designation}
+
+{f'Recent conversation:{chr(10)}{history_summary}' if history_summary else ''}
+
+{prompts.get(decision, prompts['negotiating'])}"""
+
+    return invoke_llm(system, user, max_tokens=500)
 
 
 def _mock_response(prompt: str) -> str:

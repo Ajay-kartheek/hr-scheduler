@@ -63,9 +63,9 @@ ROLES = [
 ]
 
 OFFICES = [
-    {"name": "Chennai HQ", "location": "OMR, Thoraipakkam, Chennai", "country": "India"},
+    {"name": "Coimbatore HQ", "location": "Avinashi Road, Coimbatore", "country": "India"},
     {"name": "Bangalore Office", "location": "Koramangala, Bangalore", "country": "India"},
-    {"name": "Hyderabad Office", "location": "HITEC City, Hyderabad", "country": "India"},
+    {"name": "Mumbai Office", "location": "BKC, Bandra Kurla Complex, Mumbai", "country": "India"},
 ]
 
 TEAMS = [

@@ -58,11 +58,47 @@ def _get_gmail_service():
     return build("gmail", "v1", credentials=creds, cache_discovery=False)
 
 
+def get_thread_reply_headers(thread_id: str) -> dict:
+    """Get the Message-ID and Subject from a Gmail thread for proper reply threading.
+    Returns {'message_id': str, 'subject': str} from the first (original) message."""
+    result = {"message_id": None, "subject": None}
+    try:
+        service = _get_gmail_service()
+        if not service or not thread_id:
+            return result
+        thread = service.users().threads().get(
+            userId="me", id=thread_id, format="metadata",
+            metadataHeaders=["Message-ID", "Subject"],
+        ).execute()
+        messages = thread.get("messages", [])
+        if messages:
+            # Get Message-ID from the LAST message (for In-Reply-To)
+            last_msg = messages[-1]
+            for h in last_msg.get("payload", {}).get("headers", []):
+                if h["name"].lower() == "message-id":
+                    result["message_id"] = h["value"]
+
+            # Get Subject from the FIRST message (original subject)
+            first_msg = messages[0]
+            for h in first_msg.get("payload", {}).get("headers", []):
+                if h["name"].lower() == "subject":
+                    result["subject"] = h["value"]
+    except Exception as e:
+        logger.warning(f"[GMAIL] Could not get thread headers for {thread_id}: {e}")
+    return result
+
+
 def send_email(to_email: str, subject: str, body_html: str, body_text: str = None,
                new_hire_id=None, template_type: str = None, db=None,
-               attachments: list = None) -> dict:
-    """Send an email via Gmail API. Supports optional file attachments."""
-    result = {"status": "sent", "message_id": None}
+               attachments: list = None, thread_id: str = None,
+               message_id_header: str = None) -> dict:
+    """Send an email via Gmail API. Supports optional file attachments and thread replies.
+    
+    Args:
+        thread_id: Gmail thread ID to reply in (keeps conversation in same thread)
+        message_id_header: The Message-ID of the email to reply to (for In-Reply-To header)
+    """
+    result = {"status": "sent", "message_id": None, "thread_id": None}
 
     service = _get_gmail_service()
     if not service:
@@ -114,13 +150,25 @@ def send_email(to_email: str, subject: str, body_html: str, body_text: str = Non
             msg["To"] = to_email
             msg["Subject"] = subject
 
+            # Thread reply headers — keeps email in the same Gmail conversation
+            if thread_id and message_id_header:
+                msg["In-Reply-To"] = message_id_header
+                msg["References"] = message_id_header
+
             raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+            
+            # Build Gmail API body — include threadId if replying
+            gmail_body = {"raw": raw}
+            if thread_id:
+                gmail_body["threadId"] = thread_id
+
             sent = service.users().messages().send(
-                userId="me", body={"raw": raw}
+                userId="me", body=gmail_body
             ).execute()
 
             result["message_id"] = sent.get("id", "")
-            logger.info(f"[GMAIL] Email sent to {to_email} | ID: {result['message_id']}")
+            result["thread_id"] = sent.get("threadId", "")
+            logger.info(f"[GMAIL] Email sent to {to_email} | ID: {result['message_id']} | Thread: {result['thread_id']}")
         except Exception as e:
             logger.error(f"[GMAIL] Failed: {e}")
             result["status"] = "failed"

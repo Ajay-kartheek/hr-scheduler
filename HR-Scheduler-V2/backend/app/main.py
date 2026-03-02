@@ -49,11 +49,34 @@ async def lifespan(app: FastAPI):
                 logger.error(f"[EMAIL-POLL] Error: {e}")
             await asyncio.sleep(60)  # Poll every 60 seconds
 
+    # Background follow-up scheduler
+    async def check_followups():
+        """Check for candidates needing follow-up emails every 30 minutes."""
+        await asyncio.sleep(30)  # Wait for full startup
+        while True:
+            try:
+                from db.database import SessionLocal
+                from services.followup_service import check_and_send_followups
+                db = SessionLocal()
+                try:
+                    results = check_and_send_followups(db)
+                    sent = results.get("followups_sent", 0)
+                    flagged = results.get("flagged", 0)
+                    if sent > 0 or flagged > 0:
+                        logger.info(f"[FOLLOWUP-SCHED] Sent {sent} follow-ups, flagged {flagged}")
+                finally:
+                    db.close()
+            except Exception as e:
+                logger.error(f"[FOLLOWUP-SCHED] Error: {e}")
+            await asyncio.sleep(1800)  # Every 30 minutes
+
     poll_task = asyncio.create_task(poll_email_replies())
+    followup_task = asyncio.create_task(check_followups())
 
     yield
 
     poll_task.cancel()
+    followup_task.cancel()
     logger.info("HR-Scheduler-V2 shutting down...")
 
 
@@ -82,6 +105,7 @@ from routers.onboarding import router as onboarding_router
 from routers.documents import router as documents_router
 from routers.candidates import router as candidates_router
 from routers.portal import router as portal_router
+from routers.agent_dashboard import router as agent_router
 
 app.include_router(reference_router)
 app.include_router(dashboard_router)
@@ -91,6 +115,7 @@ app.include_router(onboarding_router)
 app.include_router(documents_router)
 app.include_router(candidates_router)
 app.include_router(portal_router)
+app.include_router(agent_router)
 
 
 @app.get("/")

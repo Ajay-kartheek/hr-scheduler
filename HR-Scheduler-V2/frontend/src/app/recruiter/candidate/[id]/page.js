@@ -31,6 +31,7 @@ export default function CandidateProfile() {
     const [attachments, setAttachments] = useState([]);
     const [sending, setSending] = useState(false);
     const [customNotes, setCustomNotes] = useState('');
+    const [proposedDoj, setProposedDoj] = useState('');
 
     // Convert state
     const [showConvert, setShowConvert] = useState(false);
@@ -46,6 +47,10 @@ export default function CandidateProfile() {
             const c = await fetchCandidate(candidateId);
             setCandidate(c);
             setCustomNotes(c.recruiter_notes || '');
+            // Auto-fill DOJ from AI-extracted joining date
+            if (c.doj) {
+                setConvertForm(f => ({ ...f, doj: c.doj }));
+            }
         } catch (e) { console.error(e); }
         setLoaded(true);
     }
@@ -53,7 +58,7 @@ export default function CandidateProfile() {
     async function handleGenerate() {
         setGenerating(true);
         try {
-            const res = await generateOffer(candidateId, { custom_notes: customNotes });
+            const res = await generateOffer(candidateId, { custom_notes: customNotes, proposed_doj: proposedDoj || undefined });
             setDraftContent(res.offer_content);
             setShowDraft(true);
         } catch (e) { console.error(e); }
@@ -140,10 +145,10 @@ export default function CandidateProfile() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 20, height: 'calc(100vh - 140px)' }}>
 
-                    {/* Left Column — Candidate Info */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Left Column — Candidate Info (sticky) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 0, alignSelf: 'start', maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
 
                         {/* Profile Card */}
                         <div style={{ background: '#fff', border: '1px solid #e8ecf4', borderRadius: 16, padding: 24 }}>
@@ -189,8 +194,8 @@ export default function CandidateProfile() {
                             <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6, margin: 0 }}>{c.recruiter_notes || 'No notes'}</p>
                         </div>
 
-                        {/* Convert to Hire CTA */}
-                        {c.status === 'accepted' && !c.converted_hire_id && (
+                        {/* Convert to Hire CTA — only after DOJ is confirmed and congrats sent */}
+                        {c.status === 'accepted' && !c.converted_hire_id && c.doj && (c.conversation_history || []).some(h => h.type === 'auto_reply_sent' && h.decision === 'accepted') && (
                             <button onClick={() => setShowConvert(true)} style={{
                                 padding: '12px 20px', background: 'linear-gradient(135deg, #00275E, #003580)', color: '#fff',
                                 border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: 'pointer',
@@ -206,11 +211,11 @@ export default function CandidateProfile() {
                         )}
                     </div>
 
-                    {/* Right Column — Offer & Timeline */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* Right Column — Offer & Timeline (scrollable) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', paddingRight: 4 }}>
 
                         {/* ── Email Replies (Check Inbox) ── */}
-                        {(c.status === 'offer_sent' || c.status === 'negotiating' || c.status === 'manual_review') && (
+                        {(c.status === 'offer_sent' || c.status === 'negotiating' || c.status === 'manual_review' || c.status === 'accepted') && (
                             <div style={{ background: '#fff', border: '1px solid #e8ecf4', borderRadius: 16, padding: 24 }}>
                                 <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00ADEF" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
@@ -262,6 +267,24 @@ export default function CandidateProfile() {
                                         outline: 'none', marginBottom: 12, boxSizing: 'border-box',
                                     }}
                                 />
+                                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', marginBottom: 12 }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>Proposed Joining Date</label>
+                                        <input
+                                            type="date"
+                                            value={proposedDoj}
+                                            onChange={e => setProposedDoj(e.target.value)}
+                                            style={{
+                                                width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e8ecf4',
+                                                fontSize: 12, color: '#1e293b', fontFamily: "'Inter', sans-serif",
+                                                outline: 'none', boxSizing: 'border-box',
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 2, fontSize: 11, color: '#94a3b8', paddingBottom: 4 }}>
+                                        {proposedDoj ? '📅 Offer letter will mention this date' : '💡 Optional — AI will ask candidate to provide one'}
+                                    </div>
+                                </div>
                                 <button onClick={handleGenerate} disabled={generating} style={{
                                     padding: '10px 24px', background: generating ? '#f1f5f9' : 'linear-gradient(135deg, #00275E, #003580)',
                                     color: generating ? '#94a3b8' : '#fff', border: 'none', borderRadius: 10,
@@ -392,8 +415,25 @@ export default function CandidateProfile() {
                                                     </span>
                                                     {h.reasoning && <p style={{ fontSize: 11, color: '#64748b', margin: '4px 0 0', lineHeight: 1.5 }}>{h.reasoning}</p>}
                                                     {h.suggested_response && (
-                                                        <div style={{ marginTop: 8, padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #e8ecf4', fontSize: 11, color: '#475569', lineHeight: 1.5 }}>
-                                                            <span style={{ fontWeight: 600, color: '#1e293b' }}>Suggested response: </span>{h.suggested_response}
+                                                        <div style={{ marginTop: 8, padding: '10px 14px', background: '#fff', borderRadius: 16, border: '1px solid #e8ecf4' }}>
+                                                            <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>AI Suggested Response</div>
+                                                            <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
+                                                                {h.suggested_response}
+                                                            </div>
+                                                            {h.decision === 'manual_review' && (
+                                                                <button
+                                                                    onClick={() => router.push('/recruiter/agent')}
+                                                                    style={{
+                                                                        marginTop: 10, padding: '7px 16px', borderRadius: 8, border: 'none',
+                                                                        background: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
+                                                                        color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                                                                        display: 'flex', alignItems: 'center', gap: 6,
+                                                                        boxShadow: '0 2px 8px rgba(124,58,237,0.2)',
+                                                                    }}>
+                                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /></svg>
+                                                                    Review in AI Agent →
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>

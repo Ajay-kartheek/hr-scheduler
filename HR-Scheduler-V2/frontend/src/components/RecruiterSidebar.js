@@ -2,22 +2,37 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { fetchAgentStats } from '@/lib/api';
 
 const NAV_ITEMS = [
     { label: 'Dashboard', path: '/recruiter', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg> },
     { label: 'Pipeline', path: '/recruiter/pipeline', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg> },
+    { label: 'AI Agent', path: '/recruiter/agent', badge: true, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4M8 15h0M16 15h0" /></svg> },
 ];
 
 export default function RecruiterSidebar() {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState({ name: 'Recruiter', role: 'recruiter' });
+    const [flaggedCount, setFlaggedCount] = useState(0);
 
     useEffect(() => {
         const auth = localStorage.getItem('sk_auth');
         if (auth) {
             try { const p = JSON.parse(auth); setUser({ name: p.name || 'Recruiter', role: p.role || 'recruiter' }); } catch { }
         }
+    }, []);
+
+    // Poll for flagged items count
+    useEffect(() => {
+        const loadCount = () => {
+            fetchAgentStats()
+                .then(s => setFlaggedCount(s.flagged_items || 0))
+                .catch(() => { });
+        };
+        loadCount();
+        const interval = setInterval(loadCount, 10000); // every 10s
+        return () => clearInterval(interval);
     }, []);
 
     const handleLogout = () => {
@@ -48,12 +63,25 @@ export default function RecruiterSidebar() {
                             padding: '10px 4px', borderRadius: 10, cursor: 'pointer',
                             color: isActive ? '#00ADEF' : '#94a3b8',
                             background: isActive ? 'rgba(0, 173, 239, 0.06)' : 'transparent',
-                            transition: 'all 0.15s',
+                            transition: 'all 0.15s', position: 'relative',
                         }}
                             onClick={() => router.push(item.path)}
                         >
                             {item.icon}
                             <span style={{ fontSize: 9, fontWeight: isActive ? 600 : 500 }}>{item.label}</span>
+                            {item.badge && flaggedCount > 0 && (
+                                <span style={{
+                                    position: 'absolute', top: 4, right: 8,
+                                    minWidth: 16, height: 16, borderRadius: 8,
+                                    background: '#ef4444', color: '#fff',
+                                    fontSize: 9, fontWeight: 700,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    padding: '0 4px', boxShadow: '0 2px 6px rgba(239,68,68,0.4)',
+                                    animation: 'pulse 2s ease-in-out infinite',
+                                }}>
+                                    {flaggedCount}
+                                </span>
+                            )}
                         </div>
                     );
                 })}

@@ -108,10 +108,12 @@ def check_candidate_replies(db_session):
         return {"checked": 0, "new_replies": 0, "errors": []}
 
     # Get candidates with active offer threads (awaiting reply)
+    # Include ACCEPTED so we can catch joining date replies
     active_statuses = [
         CandidateStatus.OFFER_SENT,
         CandidateStatus.NEGOTIATING,
         CandidateStatus.MANUAL_REVIEW,
+        CandidateStatus.ACCEPTED,
     ]
 
     candidates = db_session.query(Candidate).filter(
@@ -203,15 +205,15 @@ def check_candidate_replies(db_session):
                     }
 
                 decision = classification.get("decision", "manual_review").lower()
+                confidence = classification.get("confidence", 0.5)
 
-                # Update status
-                if decision == "accepted":
-                    candidate.status = CandidateStatus.ACCEPTED
-                elif decision == "rejected":
+                # Update status (except accepted — let handle_classified_reply manage it
+                # so first-acceptance date confirmation flow works correctly)
+                if decision == "rejected":
                     candidate.status = CandidateStatus.REJECTED
                 elif decision == "negotiating":
                     candidate.status = CandidateStatus.NEGOTIATING
-                else:
+                elif decision != "accepted":
                     candidate.status = CandidateStatus.MANUAL_REVIEW
 
                 # Add classification to history
@@ -219,6 +221,7 @@ def check_candidate_replies(db_session):
                     "type": "llm_classification",
                     "timestamp": datetime.utcnow().isoformat(),
                     "decision": decision,
+                    "confidence": confidence,
                     "reasoning": classification.get("reasoning", ""),
                     "suggested_response": classification.get("suggested_response", ""),
                     "sender": "system",
@@ -229,14 +232,37 @@ def check_candidate_replies(db_session):
                 results["details"].append({
                     "candidate": name,
                     "decision": decision,
+                    "confidence": confidence,
                     "reply_preview": reply_text[:100],
                 })
 
-                logger.info(f"[EMAIL-MONITOR] {name} classified as: {decision}")
+                logger.info(f"[EMAIL-MONITOR] {name} classified as: {decision} (conf={confidence:.2f})")
 
             candidate.conversation_history = history
             flag_modified(candidate, "conversation_history")
             db_session.commit()
+
+            # ── AI Agent: Trigger auto-reply actions ──
+            if results["new_replies"] > 0:
+                try:
+                    from services.auto_reply_service import handle_classified_reply
+                    # Get the latest classification from history
+                    latest_class = None
+                    for h in reversed(history):
+                        if h.get("type") == "llm_classification":
+                            latest_class = h
+                            break
+                    if latest_class:
+                        handle_classified_reply(candidate, {
+                            "decision": latest_class.get("decision", "manual_review"),
+                            "confidence": latest_class.get("confidence", 0.5),
+                            "reasoning": latest_class.get("reasoning", ""),
+                            "suggested_response": latest_class.get("suggested_response", ""),
+                            "joining_date": latest_class.get("joining_date"),
+                        }, db_session)
+                        db_session.commit()
+                except Exception as e:
+                    logger.error(f"[EMAIL-MONITOR] Auto-reply error for {candidate.email}: {e}")
 
         except Exception as e:
             logger.error(f"[EMAIL-MONITOR] Error checking {candidate.email}: {e}")
