@@ -24,11 +24,37 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown events."""
-    logger.info("🚀 HR-Scheduler-V2 starting up...")
+    import asyncio
+
+    logger.info("HR-Scheduler-V2 starting up...")
     init_db()
-    logger.info("✅ Database tables ready")
+    logger.info("Database tables ready")
+
+    # Background email polling task
+    async def poll_email_replies():
+        """Poll Gmail for candidate replies every 60 seconds."""
+        await asyncio.sleep(10)  # Wait for full startup
+        while True:
+            try:
+                from db.database import SessionLocal
+                from services.email_monitor import check_candidate_replies
+                db = SessionLocal()
+                try:
+                    results = check_candidate_replies(db)
+                    if results.get("new_replies", 0) > 0:
+                        logger.info(f"[EMAIL-POLL] Found {results['new_replies']} new replies")
+                finally:
+                    db.close()
+            except Exception as e:
+                logger.error(f"[EMAIL-POLL] Error: {e}")
+            await asyncio.sleep(60)  # Poll every 60 seconds
+
+    poll_task = asyncio.create_task(poll_email_replies())
+
     yield
-    logger.info("🛑 HR-Scheduler-V2 shutting down...")
+
+    poll_task.cancel()
+    logger.info("HR-Scheduler-V2 shutting down...")
 
 
 app = FastAPI(
@@ -54,6 +80,8 @@ from routers.employees import router as employees_router
 from routers.forms import router as forms_router
 from routers.onboarding import router as onboarding_router
 from routers.documents import router as documents_router
+from routers.candidates import router as candidates_router
+from routers.portal import router as portal_router
 
 app.include_router(reference_router)
 app.include_router(dashboard_router)
@@ -61,6 +89,8 @@ app.include_router(employees_router)
 app.include_router(forms_router)
 app.include_router(onboarding_router)
 app.include_router(documents_router)
+app.include_router(candidates_router)
+app.include_router(portal_router)
 
 
 @app.get("/")

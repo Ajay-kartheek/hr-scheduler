@@ -7,6 +7,7 @@ Run: python -m db.seed
 
 import sys
 import os
+import hashlib
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datetime import date, timedelta
@@ -14,6 +15,7 @@ from db.database import SessionLocal, init_db, drop_all_tables
 from models import (
     Department, Role, Office, Team, Manager, NewHire, HireStatus,
 )
+from models.candidate import Candidate, CandidateStatus
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -90,9 +92,9 @@ MANAGERS = [
 # Test new hires (simulating recruiter handoff) — edit as needed
 TEST_HIRES = [
     {
-        "first_name": "Ajay",
-        "last_name": "Kartheek",
-        "personal_email": "s.ajaykartheek@gmail.com",
+        "first_name": "Priya",
+        "last_name": "Sharma",
+        "personal_email": "priya.sharma.test@gmail.com",
         "phone": "+91 9876543210",
         "designation": "Frontend Developer",
         "dept_code": "ENG",
@@ -163,6 +165,10 @@ COMPLETED_HIRES = [
         "years_experience": 5.0,
         "employee_id_code": "SK-ENG-0001",
         "company_email": "priya.sharma@shellkode.com",
+        # Portal demo — password: welcome123
+        "portal_password_hash": hashlib.sha256("welcome123".encode()).hexdigest(),
+        "portal_onboarding_complete": False,
+        "_portal_demo": True,
     },
     {
         "first_name": "Rohan",
@@ -298,9 +304,181 @@ def seed():
                 employee_id_code=h.get("employee_id_code"),
                 company_email=h.get("company_email"),
                 status=HireStatus.ACTIVE,
+                portal_password_hash=h.get("portal_password_hash"),
+                portal_onboarding_complete=h.get("portal_onboarding_complete", False),
             )
             db.add(hire)
+            db.flush()
+
+            # Add documents and assets for demo portal hire
+            if h.get("_portal_demo"):
+                from models.document import Document
+                from models.asset_request import AssetRequest
+                from models.onboarding import FormResponse, OnboardingSession
+
+                # NDA document
+                db.add(Document(
+                    new_hire_id=hire.id,
+                    name="Non-Disclosure Agreement",
+                    document_type="global",
+                    requires_signature=True,
+                    signature_status="pending",
+                    file_path="/documents/nda_shellkode_2026.pdf",
+                ))
+                # Leave policy
+                db.add(Document(
+                    new_hire_id=hire.id,
+                    name="Leave Policy 2026",
+                    document_type="global",
+                    requires_signature=True,
+                    signature_status="pending",
+                    file_path="/documents/leave_policy_2026.pdf",
+                ))
+                # Employee handbook
+                db.add(Document(
+                    new_hire_id=hire.id,
+                    name="Employee Handbook",
+                    document_type="global",
+                    requires_signature=False,
+                    signature_status="not_required",
+                    file_path="/documents/employee_handbook.pdf",
+                ))
+                # Asset request
+                db.add(AssetRequest(
+                    new_hire_id=hire.id,
+                    equipment_list=["MacBook Pro 16-inch M3", "Dell 27\" 4K Monitor", "Magic Keyboard", "Magic Mouse"],
+                    status="pending",
+                    notes="Standard engineering setup",
+                ))
+                # Form response (partial — employee will complete rest)
+                db.add(FormResponse(
+                    new_hire_id=hire.id,
+                    phone="+91 98765 43210",
+                    blood_group="O+",
+                    address="123 MG Road, Bangalore",
+                ))
+                # Onboarding session with plan
+                db.add(OnboardingSession(
+                    new_hire_id=hire.id,
+                    current_step=4,
+                    status="completed",
+                    onboarding_plan="""## Week 1 Schedule
+
+**Monday — Day 1**
+- 9:00 AM — Welcome & campus tour
+- 10:30 AM — IT setup & laptop handover
+- 11:30 AM — Team introduction with Manager
+- 2:00 PM — HR orientation session
+- 3:30 PM — Access card & ID badge pickup
+
+**Tuesday — Day 2**
+- 9:30 AM — Engineering tools setup (Git, IDE, AWS)
+- 11:00 AM — Codebase walkthrough with tech lead
+- 2:00 PM — Architecture overview presentation
+- 4:00 PM — Dev environment verification
+
+**Wednesday — Day 3**
+- 9:30 AM — Sprint planning meeting (shadow)
+- 11:00 AM — First task assignment
+- 2:00 PM — Company values & culture session
+- 3:30 PM — Buddy program intro
+
+**Thursday — Day 4**
+- 9:30 AM — Deep dive: CI/CD pipeline
+- 11:00 AM — Code review process & standards
+- 2:00 PM — Cross-team meet & greet
+- 4:00 PM — First PR (starter task)
+
+**Friday — Day 5**
+- 9:30 AM — Week 1 retrospective with manager
+- 11:00 AM — Q&A with team lead
+- 2:00 PM — Learning path & goals discussion
+- 3:30 PM — Social: team coffee chat""",
+                ))
         print(f"   ✓ Completed Hires: {len(COMPLETED_HIRES)}")
+
+        # ── Selected Candidates (Recruiter Pipeline) ──
+        SELECTED_CANDIDATES = [
+            {
+                "first_name": "Ajay", "last_name": "Kartheek",
+                "email": "s.ajaykartheek@gmail.com", "phone": "+91 90012 34567",
+                "designation": "Senior Backend Engineer",
+                "current_company": "Zoho Corporation", "years_experience": 5.5,
+                "linkedin_url": "https://linkedin.com/in/ajay-kartheek",
+                "expected_ctc": "₹22 LPA", "offered_ctc": "₹24 LPA",
+                "recruiter_notes": "Strong in Python/FastAPI, system design. Led a team of 4 at Zoho. Excellent communication skills. Cleared all 4 rounds.",
+                "dept_code": "ENG",
+            },
+            {
+                "first_name": "Meera", "last_name": "Joshi",
+                "email": "meera.joshi.test@gmail.com", "phone": "+91 98765 43210",
+                "designation": "ML Engineer",
+                "current_company": "Fractal Analytics", "years_experience": 3.0,
+                "linkedin_url": "https://linkedin.com/in/meera-joshi",
+                "expected_ctc": "₹18 LPA", "offered_ctc": "₹20 LPA",
+                "recruiter_notes": "NLP specialist, published 2 papers. Experience with LLMs and RAG pipelines. Great culture fit.",
+                "dept_code": "AI",
+            },
+            {
+                "first_name": "Karthik", "last_name": "Rajan",
+                "email": "karthik.rajan.test@gmail.com", "phone": "+91 87654 32109",
+                "designation": "Full Stack Developer",
+                "current_company": "Freshworks", "years_experience": 4.0,
+                "linkedin_url": "https://linkedin.com/in/karthik-rajan",
+                "expected_ctc": "₹16 LPA", "offered_ctc": "₹18 LPA",
+                "recruiter_notes": "Strong React + Node.js experience. Built customer-facing products at Freshworks serving 10K+ users. Quick learner.",
+                "dept_code": "ENG",
+            },
+            {
+                "first_name": "Sneha", "last_name": "Reddy",
+                "email": "sneha.reddy.test@gmail.com", "phone": "+91 76543 21098",
+                "designation": "UX Designer",
+                "current_company": "Swiggy", "years_experience": 3.5,
+                "linkedin_url": "https://linkedin.com/in/sneha-reddy",
+                "expected_ctc": "₹14 LPA", "offered_ctc": "₹15 LPA",
+                "recruiter_notes": "Impressive portfolio, redesigned Swiggy's checkout flow. Strong in Figma, user research, and design systems.",
+                "dept_code": "DES",
+            },
+            {
+                "first_name": "Varun", "last_name": "Mehta",
+                "email": "varun.mehta.test@gmail.com", "phone": "+91 65432 10987",
+                "designation": "DevOps Engineer",
+                "current_company": "Razorpay", "years_experience": 6.0,
+                "linkedin_url": "https://linkedin.com/in/varun-mehta",
+                "expected_ctc": "₹28 LPA", "offered_ctc": "₹30 LPA",
+                "recruiter_notes": "AWS certified, managed infrastructure at scale (100+ microservices). Strong in Kubernetes, Terraform, CI/CD.",
+                "dept_code": "ENG",
+            },
+            {
+                "first_name": "Divya", "last_name": "Patel",
+                "email": "divya.patel.test@gmail.com", "phone": "+91 54321 09876",
+                "designation": "Product Marketing Manager",
+                "current_company": "Notion", "years_experience": 4.5,
+                "linkedin_url": "https://linkedin.com/in/divya-patel",
+                "expected_ctc": "₹20 LPA", "offered_ctc": "₹22 LPA",
+                "recruiter_notes": "Led GTM strategy for Notion India launch. Strong analytical mindset, great storytelling skills. MBA from ISB.",
+                "dept_code": "MKT",
+            },
+        ]
+
+        for c in SELECTED_CANDIDATES:
+            candidate = Candidate(
+                first_name=c["first_name"],
+                last_name=c["last_name"],
+                email=c["email"],
+                phone=c.get("phone"),
+                designation=c.get("designation"),
+                department_id=dept_map.get(c["dept_code"]),
+                current_company=c.get("current_company"),
+                years_experience=c.get("years_experience"),
+                linkedin_url=c.get("linkedin_url"),
+                expected_ctc=c.get("expected_ctc"),
+                offered_ctc=c.get("offered_ctc"),
+                recruiter_notes=c.get("recruiter_notes"),
+                status=CandidateStatus.SELECTED,
+            )
+            db.add(candidate)
+        print(f"   ✓ Selected Candidates: {len(SELECTED_CANDIDATES)}")
 
         db.commit()
         print("\n✅ Database seeded successfully!")

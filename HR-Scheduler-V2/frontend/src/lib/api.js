@@ -86,3 +86,45 @@ export const deleteDocument = (docId) =>
 
 // -- Form Response (HR review) --
 export const fetchFormResponse = (hireId) => apiFetch(`/api/employees/${hireId}/form-response`);
+
+// ── Candidates (Recruiter Pipeline) ──
+export const fetchCandidates = () => apiFetch('/api/candidates/');
+export const fetchCandidate = (id) => apiFetch(`/api/candidates/${id}`);
+export const fetchCandidateStats = () => apiFetch('/api/candidates/stats');
+export const generateOffer = (id, data = {}) =>
+    apiFetch(`/api/candidates/${id}/generate-offer`, { method: 'POST', body: JSON.stringify(data) });
+export async function sendOffer(id, offerContent, attachments = []) {
+    const form = new FormData();
+    form.append('offer_content', offerContent);
+    for (const file of attachments) {
+        form.append('attachments', file);
+    }
+    const res = await fetch(`${API_BASE}/api/candidates/${id}/send-offer`, { method: 'POST', body: form });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || `API error ${res.status}`);
+    }
+    return res.json();
+}
+export const simulateReply = (id, reply_text) =>
+    apiFetch(`/api/candidates/${id}/simulate-reply`, { method: 'POST', body: JSON.stringify({ reply_text }) });
+export const checkReplies = () =>
+    apiFetch('/api/candidates/check-replies', { method: 'POST' });
+export const convertToHire = (id, data) =>
+    apiFetch(`/api/candidates/${id}/convert-to-hire`, { method: 'POST', body: JSON.stringify(data) });
+
+// ── Employee Portal ──
+export const portalLogin = (email, password) =>
+    apiFetch('/api/portal/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+export const getPortalProfile = (id) => apiFetch(`/api/portal/me/${id}`);
+export const acknowledgeDocument = (docId) =>
+    apiFetch(`/api/portal/acknowledge/${docId}`, { method: 'POST' });
+export const updatePortalProfile = (id, data) =>
+    apiFetch(`/api/portal/profile/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const completePortalOnboarding = (id) =>
+    apiFetch(`/api/portal/complete-onboarding/${id}`, { method: 'POST' });
+export const raiseRequest = (id, data) =>
+    apiFetch(`/api/portal/raise-request/${id}`, { method: 'POST', body: JSON.stringify(data) });
+export const getPortalRequests = (id) => apiFetch(`/api/portal/requests/${id}`);
+export const sendPortalCredentials = (id) =>
+    apiFetch(`/api/employees/${id}/send-portal-credentials`, { method: 'POST' });

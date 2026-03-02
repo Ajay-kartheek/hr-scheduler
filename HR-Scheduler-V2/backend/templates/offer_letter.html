@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Letter — Shellkode Technologies</title>
+</head>
+
+<body style="margin:0;padding:0;background:#f0f4ff;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4ff;padding:32px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0"
+                    style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,39,94,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td
+                            style="background:linear-gradient(135deg,#00275E,#003580);padding:36px 40px;text-align:center;">
+                            <h1 style="color:#fff;font-size:22px;margin:0 0 6px;">Shellkode Technologies</h1>
+                            <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:0;letter-spacing:1px;">OFFER OF
+                                EMPLOYMENT</p>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding:36px 40px;">
+                            <p style="font-size:15px;color:#1e293b;margin:0 0 8px;">
+                                Dear <strong>{{ full_name }}</strong>,
+                            </p>
+
+                            <!-- Position Details Card -->
+                            <table width="100%" cellpadding="0" cellspacing="0"
+                                style="margin:20px 0;background:#f8fafc;border:1px solid #e8ecf4;border-radius:12px;">
+                                <tr>
+                                    <td style="padding:20px;">
+                                        <table width="100%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td style="padding:4px 0;">
+                                                    <span
+                                                        style="font-size:10px;font-weight:600;color:#64748b;letter-spacing:1px;">POSITION</span><br>
+                                                    <span style="font-size:16px;font-weight:700;color:#00275E;">{{
+                                                        designation }}</span>
+                                                </td>
+                                            </tr>
+                                            {% if department %}
+                                            <tr>
+                                                <td style="padding:4px 0;">
+                                                    <span
+                                                        style="font-size:10px;font-weight:600;color:#64748b;letter-spacing:1px;">DEPARTMENT</span><br>
+                                                    <span style="font-size:14px;font-weight:600;color:#1e293b;">{{
+                                                        department }}</span>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if offered_ctc %}
+                                            <tr>
+                                                <td style="padding:4px 0;">
+                                                    <span
+                                                        style="font-size:10px;font-weight:600;color:#64748b;letter-spacing:1px;">COMPENSATION</span><br>
+                                                    <span style="font-size:14px;font-weight:600;color:#15803d;">{{
+                                                        offered_ctc }}</span>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- AI-generated offer content -->
+                            <div style="font-size:14px;color:#475569;line-height:1.8;white-space:pre-line;">{{
+                                offer_content }}</div>
+
+                            <!-- Reply CTA -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <div
+                                            style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center;">
+                                            <p style="font-size:13px;color:#15803d;font-weight:600;margin:0 0 8px;">
+                                                Ready to join us?</p>
+                                            <p style="font-size:12px;color:#64748b;margin:0;">Simply reply to this email
+                                                with your acceptance and preferred date of joining.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td
+                            style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e8ecf4;">
+                            <p style="font-size:12px;color:#94a3b8;margin:0 0 4px;">
+                                Questions? Reach out to your recruiter at <a href="mailto:{{ sender_email }}"
+                                    style="color:#00ADEF;text-decoration:none;">{{ sender_email }}</a>
+                            </p>
+                            <p style="font-size:11px;color:#cbd5e1;margin:0;">
+                                Shellkode Technologies — Talent Acquisition Team
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

@@ -28,6 +28,15 @@ class FormResponse(Base):
     linkedin_url = Column(String(500))
     bio = Column(Text)
 
+    # ── Extended profile (employee portal) ──
+    date_of_birth = Column(String(15))
+    father_name = Column(String(100))
+    pan_number = Column(String(15))
+    aadhaar_number = Column(String(15))
+    bank_account_number = Column(String(30))
+    bank_ifsc = Column(String(15))
+    bank_name = Column(String(100))
+
     # ── Flexible extra data ──
     extra_data = Column(JSONB, default=dict)
 

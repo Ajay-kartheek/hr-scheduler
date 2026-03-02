@@ -157,8 +157,13 @@ def get_form_response(hire_id: UUID, db: Session = Depends(get_db)):
 def confirm_joined(hire_id: UUID, db: Session = Depends(get_db)):
     """
     HR confirms the employee has actually joined on their DOJ.
-    Triggers: company email assignment, employee ID generation, status -> ACTIVE.
+    Triggers: company email assignment, employee ID generation,
+    portal credential generation, status -> ACTIVE, and joining email.
     """
+    import hashlib
+    import string
+    import random
+
     hire = db.query(NewHire).filter(NewHire.id == hire_id).first()
     if not hire:
         raise HTTPException(status_code=404, detail="Employee not found")
@@ -174,7 +179,6 @@ def confirm_joined(hire_id: UUID, db: Session = Depends(get_db)):
         NewHire.id != hire.id,
     ).first()
     if existing:
-        import random
         company_email = f"{first}.{last}{random.randint(1,99)}@shellkode.com"
 
     hire.company_email = company_email
@@ -187,17 +191,22 @@ def confirm_joined(hire_id: UUID, db: Session = Depends(get_db)):
     ).count()
     hire.employee_id_code = f"SK-{dept_code}-{count + 1:04d}"
 
+    # ── Generate portal credentials ──
+    chars = string.ascii_letters + string.digits
+    temp_password = "".join(random.choices(chars, k=10))
+    hire.portal_password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
+
     # Move to active
     hire.status = HireStatus.ACTIVE
 
     db.commit()
     db.refresh(hire)
 
-    # Send joining confirmation email with credentials & access info
+    # Send joining confirmation email with portal credentials
     email_result = {"status": "skipped"}
     try:
         from services.email_service import send_joining_confirmation_email
-        email_result = send_joining_confirmation_email(hire, db=db)
+        email_result = send_joining_confirmation_email(hire, temp_password=temp_password, db=db)
     except Exception as e:
         import logging
         logging.getLogger("hr_scheduler_v2").error(f"Joining confirmation email failed: {e}")
@@ -207,8 +216,70 @@ def confirm_joined(hire_id: UUID, db: Session = Depends(get_db)):
         "message": f"{hire.first_name} has been confirmed as joined!",
         "company_email": hire.company_email,
         "employee_id": hire.employee_id_code,
+        "temp_password": temp_password,
         "status": "active",
         "email_sent": email_result.get("status", "unknown"),
+    }
+
+
+# ── Send Portal Credentials ──
+
+@router.post("/{hire_id}/send-portal-credentials")
+def send_portal_credentials(hire_id: UUID, db: Session = Depends(get_db)):
+    """Generate temp password, store hash, and email portal credentials."""
+    import hashlib
+    import string
+    import random
+
+    hire = db.query(NewHire).filter(NewHire.id == hire_id).first()
+    if not hire:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    if not hire.company_email:
+        raise HTTPException(status_code=400, detail="Company email not set. Complete onboarding first.")
+
+    # Generate temp password
+    chars = string.ascii_letters + string.digits
+    temp_password = "".join(random.choices(chars, k=10))
+
+    # Hash and store
+    hire.portal_password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
+    db.commit()
+
+    name = f"{hire.first_name} {hire.last_name or ''}".strip()
+
+    # Send email
+    email_result = {"status": "skipped"}
+    try:
+        from services.email_service import send_email
+        body_html = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <h2 style="color: #00275E;">Welcome to Shellkode Technologies</h2>
+            <p>Hello {hire.first_name},</p>
+            <p>Your employee portal is ready. Use the credentials below to log in:</p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 4px 0;"><strong>Portal URL:</strong> <a href="http://localhost:3000/portal">http://localhost:3000/portal</a></p>
+                <p style="margin: 4px 0;"><strong>Email:</strong> {hire.company_email}</p>
+                <p style="margin: 4px 0;"><strong>Password:</strong> {temp_password}</p>
+            </div>
+            <p>Please complete the mandatory onboarding steps after logging in.</p>
+            <p>Best regards,<br/>HR Team, Shellkode Technologies</p>
+        </div>
+        """
+        email_result = send_email(
+            to_email=hire.personal_email,  # Send to personal email since they may not have company email access yet
+            subject=f"Your Shellkode Portal Credentials | {name}",
+            body_html=body_html,
+            body_text=f"Portal: http://localhost:3000/portal\\nEmail: {hire.company_email}\\nPassword: {temp_password}",
+        )
+    except Exception as e:
+        email_result = {"status": "failed", "error": str(e)}
+
+    return {
+        "message": f"Portal credentials sent to {hire.personal_email}",
+        "company_email": hire.company_email,
+        "temp_password": temp_password,  # Show in response for demo
+        "email_status": email_result.get("status", "unknown"),
     }
 
 

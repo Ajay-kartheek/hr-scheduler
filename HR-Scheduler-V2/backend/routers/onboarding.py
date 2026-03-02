@@ -214,3 +214,4 @@ def complete_onboarding(hire_id: UUID, db: Session = Depends(get_db)):
 
     db.commit()
     return {"message": f"Onboarding completed for {hire.first_name} {hire.last_name}"}
+

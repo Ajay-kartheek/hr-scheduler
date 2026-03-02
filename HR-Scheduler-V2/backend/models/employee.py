@@ -5,7 +5,7 @@ NewHire model — the central entity of the onboarding pipeline.
 import uuid
 import enum
 from datetime import datetime, date
-from sqlalchemy import Column, String, Text, Date, DateTime, Float, ForeignKey, Enum
+from sqlalchemy import Column, String, Text, Boolean, Date, DateTime, Float, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from db.base import Base
@@ -58,6 +58,10 @@ class NewHire(Base):
     company_email = Column(String(200))
     employee_id_code = Column(String(50))  # e.g., SK-ENG-0042
 
+    # ── Portal auth ──
+    portal_password_hash = Column(String(200))  # bcrypt hash
+    portal_onboarding_complete = Column(Boolean, default=False)
+
     # ── Recruiter context (used by LLM) ──
     recruiter_notes = Column(Text)
     linkedin_url = Column(String(500))
@@ -79,3 +83,4 @@ class NewHire(Base):
     documents = relationship("Document", back_populates="new_hire")
     asset_requests = relationship("AssetRequest", back_populates="new_hire")
     email_logs = relationship("EmailLog", back_populates="new_hire")
+    employee_requests = relationship("EmployeeRequest", back_populates="new_hire")

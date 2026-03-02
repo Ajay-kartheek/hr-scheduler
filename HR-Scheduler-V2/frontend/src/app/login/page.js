@@ -110,7 +110,8 @@ export default function LoginPage() {
             const autoRedirectTimer = setTimeout(() => {
                 setTransitioning(true);
                 setTimeout(() => {
-                    router.push('/dashboard');
+                    const dest = userRole === 'recruiter' ? '/recruiter' : '/dashboard';
+                    router.push(dest);
                 }, 900);
             }, 5000);
             return () => clearTimeout(autoRedirectTimer);

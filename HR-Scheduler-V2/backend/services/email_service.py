@@ -36,7 +36,11 @@ def _get_gmail_service():
         settings.gmail_credentials_file,
     )
 
-    SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+    SCOPES = [
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.modify",
+    ]
     creds = None
 
     if os.path.exists(token_path):
@@ -55,8 +59,9 @@ def _get_gmail_service():
 
 
 def send_email(to_email: str, subject: str, body_html: str, body_text: str = None,
-               new_hire_id=None, template_type: str = None, db=None) -> dict:
-    """Send an email via Gmail API. Falls back to logging."""
+               new_hire_id=None, template_type: str = None, db=None,
+               attachments: list = None) -> dict:
+    """Send an email via Gmail API. Supports optional file attachments."""
     result = {"status": "sent", "message_id": None}
 
     service = _get_gmail_service()
@@ -67,14 +72,47 @@ def send_email(to_email: str, subject: str, body_html: str, body_text: str = Non
         result["message_id"] = f"log-{datetime.utcnow().timestamp()}"
     else:
         try:
-            msg = MIMEMultipart("alternative")
+            # Use 'mixed' for attachments, 'alternative' for plain email
+            if attachments:
+                msg = MIMEMultipart("mixed")
+                alt_part = MIMEMultipart("alternative")
+                if body_text:
+                    alt_part.attach(MIMEText(body_text, "plain"))
+                alt_part.attach(MIMEText(body_html, "html"))
+                msg.attach(alt_part)
+
+                # Attach files
+                import mimetypes
+                for file_path in attachments:
+                    try:
+                        filename = os.path.basename(file_path)
+                        content_type, _ = mimetypes.guess_type(file_path)
+                        if not content_type:
+                            content_type = "application/octet-stream"
+                        main_type, sub_type = content_type.split("/", 1)
+
+                        with open(file_path, "rb") as f:
+                            file_data = f.read()
+
+                        from email.mime.base import MIMEBase
+                        from email import encoders
+                        attachment = MIMEBase(main_type, sub_type)
+                        attachment.set_payload(file_data)
+                        encoders.encode_base64(attachment)
+                        attachment.add_header("Content-Disposition", "attachment", filename=filename)
+                        msg.attach(attachment)
+                        logger.info(f"[GMAIL] Attached: {filename}")
+                    except Exception as e:
+                        logger.error(f"[GMAIL] Failed to attach {file_path}: {e}")
+            else:
+                msg = MIMEMultipart("alternative")
+                if body_text:
+                    msg.attach(MIMEText(body_text, "plain"))
+                msg.attach(MIMEText(body_html, "html"))
+
             msg["From"] = settings.sender_email
             msg["To"] = to_email
             msg["Subject"] = subject
-
-            if body_text:
-                msg.attach(MIMEText(body_text, "plain"))
-            msg.attach(MIMEText(body_html, "html"))
 
             raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
             sent = service.users().messages().send(
@@ -82,9 +120,9 @@ def send_email(to_email: str, subject: str, body_html: str, body_text: str = Non
             ).execute()
 
             result["message_id"] = sent.get("id", "")
-            logger.info(f"[GMAIL] ✅ Email sent to {to_email} | ID: {result['message_id']}")
+            logger.info(f"[GMAIL] Email sent to {to_email} | ID: {result['message_id']}")
         except Exception as e:
-            logger.error(f"[GMAIL] ❌ Failed: {e}")
+            logger.error(f"[GMAIL] Failed: {e}")
             result["status"] = "failed"
             result["message_id"] = str(e)
 
@@ -202,10 +240,10 @@ def send_onboarding_plan_email(new_hire, plan_text: str, db=None) -> dict:
     )
 
 
-def send_joining_confirmation_email(new_hire, db=None) -> dict:
+def send_joining_confirmation_email(new_hire, temp_password=None, db=None) -> dict:
     """
     Send joining confirmation email with company email, employee ID,
-    access card details, and provisioning info.
+    portal credentials, access card details, and provisioning info.
     """
     first_name = new_hire.first_name or "there"
     last_name = new_hire.last_name or ""
@@ -224,14 +262,39 @@ def send_joining_confirmation_email(new_hire, db=None) -> dict:
             department=department,
             company_email=company_email,
             employee_id=employee_id,
+            temp_password=temp_password,
+            portal_url="http://localhost:3000/portal",
             sender_email=settings.sender_email,
         )
     except Exception as e:
         logger.error(f"Joining confirmation template failed: {e}")
+        portal_section = ""
+        if temp_password:
+            portal_section = f"""
+<h3 style="color: #00275E; margin-top: 24px;">Employee Portal Access</h3>
+<div style="background: #f0f4ff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 12px 0;">
+    <p style="margin: 4px 0;"><strong>Portal URL:</strong> <a href="http://localhost:3000/portal">http://localhost:3000/portal</a></p>
+    <p style="margin: 4px 0;"><strong>Login Email:</strong> {company_email}</p>
+    <p style="margin: 4px 0;"><strong>Temporary Password:</strong> {temp_password}</p>
+</div>
+<p>Please log in and complete the mandatory onboarding steps (NDA, policies, profile details).</p>"""
         body_html = f"""<h2>Welcome Aboard, {full_name}!</h2>
 <p>Your company email: <strong>{company_email}</strong></p>
 <p>Your employee ID: <strong>{employee_id}</strong></p>
-<p>Your access card and IT equipment are being provisioned.</p>"""
+<p>Your access card and IT equipment are being provisioned.</p>
+{portal_section}"""
+
+    portal_text = ""
+    if temp_password:
+        portal_text = f"""
+Employee Portal
+───────────────
+Portal URL: http://localhost:3000/portal
+Login Email: {company_email}
+Temporary Password: {temp_password}
+
+Please log in and complete the mandatory onboarding steps.
+"""
 
     body_text = f"""Welcome Aboard, {full_name}!
 
@@ -244,7 +307,7 @@ Department: {department}
 
 Your access card, IT equipment, and internal tools are being provisioned.
 Report to the front desk on your first day to collect your badge and welcome kit.
-
+{portal_text}
 — HR Team, Shellkode Technologies"""
 
     subject = f"Welcome Aboard — Your Credentials & Access | {full_name}"
@@ -258,3 +321,4 @@ Report to the front desk on your first day to collect your badge and welcome kit
         template_type="joining_confirmation",
         db=db,
     )
+

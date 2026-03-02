@@ -118,9 +118,94 @@ Additional Notes: {custom_notes}"""
     return invoke_llm(system, user, max_tokens=1000)
 
 
+def generate_offer_letter(
+    first_name: str,
+    last_name: str = "",
+    designation: str = "",
+    department: str = "",
+    offered_ctc: str = "",
+    custom_notes: str = "",
+) -> str:
+    """Generate a personalized offer letter using LLM."""
+    system = """You are a talent acquisition specialist at Shellkode Technologies.
+Write a warm, professional offer letter for a selected candidate. The letter should:
+- Congratulate them on being selected
+- Mention the role and department
+- If CTC is provided, mention the compensation package
+- Highlight the company culture and growth opportunities
+- Mention benefits (health insurance, learning budget, flexible hours, team events)
+- Ask them to confirm acceptance and preferred date of joining
+- Keep it concise (4-5 paragraphs)
+- Don't include subject line, greeting, or sign-off — just the body paragraphs
+- Plain text only, no HTML or markdown"""
+
+    user = f"""Write an offer letter for:
+Name: {first_name} {last_name}
+Position: {designation}
+Department: {department}
+Offered CTC: {offered_ctc}
+Recruiter Notes: {custom_notes}"""
+
+    return invoke_llm(system, user, max_tokens=800)
+
+
+def classify_candidate_reply(
+    candidate_name: str,
+    designation: str = "",
+    offer_content: str = "",
+    reply_text: str = "",
+) -> dict:
+    """Classify a candidate's reply to an offer letter using LLM."""
+    system = """You are an AI assistant for Shellkode Technologies' recruitment team.
+Analyze a candidate's reply to an offer letter and classify it.
+
+You MUST respond with ONLY a valid JSON object (no markdown, no backticks):
+{
+    "decision": "accepted" | "rejected" | "negotiating" | "manual_review",
+    "reasoning": "brief explanation of why you classified it this way",
+    "suggested_response": "a draft response the recruiter could send back"
+}
+
+Classification rules:
+- "accepted": Candidate clearly accepts the offer, mentions joining date, or is enthusiastic
+- "rejected": Candidate clearly declines, has taken another offer, or is not interested
+- "negotiating": Candidate wants to discuss salary, role, benefits, timeline, or has conditions
+- "manual_review": Reply is ambiguous, off-topic, or needs human judgment"""
+
+    user = f"""Candidate: {candidate_name}
+Position: {designation}
+
+Original offer summary: {offer_content[:500]}
+
+Candidate's reply:
+\"{reply_text}\"
+
+Classify this reply:"""
+
+    raw = invoke_llm(system, user, max_tokens=500)
+
+    # Parse the JSON response
+    import json
+    try:
+        # Clean up potential markdown formatting
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1].rsplit("```", 1)[0]
+        return json.loads(cleaned)
+    except (json.JSONDecodeError, IndexError):
+        logger.warning(f"Failed to parse LLM classification: {raw[:200]}")
+        return {
+            "decision": "manual_review",
+            "reasoning": f"Could not parse LLM response. Raw: {raw[:200]}",
+            "suggested_response": "",
+        }
+
+
 def _mock_response(prompt: str) -> str:
     """Fallback mock for when AI is disabled."""
-    if "welcome email" in prompt.lower():
+    lower = prompt.lower()
+
+    if "welcome email" in lower:
         return """Dear New Hire,
 
 Welcome to Shellkode Technologies! We're thrilled to have you join our team.
@@ -131,6 +216,25 @@ Please don't hesitate to reach out if you have any questions before your joining
 
 Warm regards,
 HR Team, Shellkode Technologies"""
+
+    if "offer letter" in lower:
+        return """We are delighted to inform you that after careful consideration, we have selected you for this position at Shellkode Technologies. Your skills, experience, and passion stood out during the interview process.
+
+At Shellkode, we believe in fostering an environment of innovation and continuous growth. You will be joining a dynamic team that values collaboration, technical excellence, and creative problem-solving. We are confident that your expertise will make a meaningful impact.
+
+We offer a comprehensive benefits package including health insurance for you and your family, a dedicated learning and development budget, flexible working hours, and regular team events and offsites. We are committed to supporting your professional growth and well-being.
+
+Please review the details and confirm your acceptance at your earliest convenience. We would also appreciate it if you could share your preferred date of joining so we can prepare everything for a smooth onboarding experience.
+
+We look forward to welcoming you to the Shellkode family!"""
+
+    if "classify" in lower:
+        import json
+        return json.dumps({
+            "decision": "accepted",
+            "reasoning": "The candidate has clearly expressed acceptance of the offer.",
+            "suggested_response": "Thank you for accepting! We're excited to have you on board. Please share your preferred date of joining and we'll get everything ready for you."
+        })
 
     return """30-60-90 Day Onboarding Plan
 
@@ -157,3 +261,4 @@ DAYS 61-90: Ownership & Growth
 - Identify areas for growth
 - 90-day performance review
 - Set goals for the next quarter"""
+
