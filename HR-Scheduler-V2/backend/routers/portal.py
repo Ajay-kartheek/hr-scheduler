@@ -202,6 +202,43 @@ def acknowledge_document(doc_id: UUID, db: Session = Depends(get_db)):
     return {"message": f"Document '{doc.name}' acknowledged", "signature_status": "signed"}
 
 
+class AcknowledgeByNameRequest(BaseModel):
+    doc_name: str  # e.g. "Non-Disclosure Agreement" or "Leave Policy 2026"
+
+@router.post("/acknowledge-by-name/{employee_id}")
+def acknowledge_by_name(employee_id: UUID, data: AcknowledgeByNameRequest, db: Session = Depends(get_db)):
+    """
+    Acknowledge a document by name for an employee.
+    If the document doesn't exist yet, auto-create it and mark as signed.
+    This handles real-flow hires who may not have documents pre-assigned.
+    """
+    emp = db.query(NewHire).filter(NewHire.id == employee_id).first()
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    # Try to find existing document
+    doc = db.query(Document).filter(
+        Document.new_hire_id == emp.id,
+        Document.name.ilike(f"%{data.doc_name}%"),
+    ).first()
+
+    if doc:
+        doc.signature_status = "signed"
+    else:
+        # Auto-create the document and mark as signed
+        doc = Document(
+            new_hire_id=emp.id,
+            name=data.doc_name,
+            document_type="policy",
+            requires_signature=True,
+            signature_status="signed",
+        )
+        db.add(doc)
+
+    db.commit()
+    return {"message": f"Document '{data.doc_name}' acknowledged", "signature_status": "signed"}
+
+
 # ── Update Profile ──
 
 @router.put("/profile/{employee_id}")

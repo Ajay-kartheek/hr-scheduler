@@ -119,6 +119,8 @@ export const portalLogin = (email, password) =>
 export const getPortalProfile = (id) => apiFetch(`/api/portal/me/${id}`);
 export const acknowledgeDocument = (docId) =>
     apiFetch(`/api/portal/acknowledge/${docId}`, { method: 'POST' });
+export const acknowledgeByName = (employeeId, docName) =>
+    apiFetch(`/api/portal/acknowledge-by-name/${employeeId}`, { method: 'POST', body: JSON.stringify({ doc_name: docName }) });
 export const updatePortalProfile = (id, data) =>
     apiFetch(`/api/portal/profile/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const completePortalOnboarding = (id) =>
